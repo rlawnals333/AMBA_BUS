@@ -24,7 +24,7 @@ module ram(//이제 cpu 말고 bus랑 놀아야됨
     input logic PCLK,
     input logic PRESET,
 
-    input logic [31:0] PADDR, //12bit?  //4bit???  //알아서 자름 lsb 남김
+    input logic [11:0] PADDR, //12bit?  //4bit???  //알아서 자름 lsb 남김
     input logic [31:0] PWDATA,
     input logic PWRITE,
     input logic PENABLE,
@@ -39,7 +39,7 @@ module ram(//이제 cpu 말고 bus랑 놀아야됨
 
     // output logic [31:0] rData
     );
-    logic [31:0] mem[0:63]; // 10bit?
+    logic [31:0] mem[0:2**10-1]; // 10bit?
     // logic [31:0] temp_rData;
 
  logic c_ready, n_ready;
@@ -59,10 +59,10 @@ module ram(//이제 cpu 말고 bus랑 놀아야됨
             if(PSEL) begin
                 if (PWRITE) begin
                     // 0000 => 0004 => 0008 => 000C 이런식으로 움직임 [3:2]만 바뀜
-                    mem[PADDR[31:2]] <= PWDATA;
+                    mem[PADDR[11:2]] <= PWDATA;
                     
                 end else begin    
-                 PRDATA <= mem[PADDR[31:2]];
+                 PRDATA <= mem[PADDR[11:2]];
                
                 end
             
@@ -88,14 +88,14 @@ module ram(//이제 cpu 말고 bus랑 놀아야됨
 
     // assign temp_rData = mem[PADDR]; //read 
 
-        register U_ram_reg (
-        .clk(PCLK),
-        .reset(PRESET),
-        .en(PWRITE),
-        .d(mem[PADDR]),
-        .q(PRDATA)
+    //     register U_ram_reg (
+    //     .clk(PCLK),
+    //     .reset(PRESET),
+    //     .en(PWRITE),
+    //     .d(mem[PADDR[7:2]]),
+    //     .q(PRDATA)
        
-    );
+    // );
 
 
 endmodule

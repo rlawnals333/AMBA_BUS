@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 `include "defined.sv"
-
+//메모리가 작을 때는 메모리 매핑을 통해 c언어에 명시해야되
 //single cycle core : 너무 단순 => multi cycle core: 이거 쓰셈 
 
 // transfer 내보낼 때 bus에서 신호 캡쳐 
@@ -53,6 +53,7 @@ module ControlUnit (
         writeback_en = 0;
         regFileWe = 0;
         pc_en =0;
+        transfer = 0; //평소 0 나와야되 이런거 깜빡하지마 
 
         case(current_state)
         FETCH: fetch_en = 1'b1;
@@ -70,13 +71,13 @@ module ControlUnit (
             memaccess_en = 1'b1;
             transfer =1'b1; // addr값 들감 이떄 bus 신호 내보내야함 
         end
-        WAIT_EXECUTE : begin
+        WAIT_EXECUTE : begin // 이때 addr, wdata,rdata다 준비됌
             case(opcode)
            `OP_TYPE_R: begin
             regFileWe = 1'b1;  // R-Type
            end  
            `OP_TYPE_L:  begin
-            writeback_en = 1'b1;
+            // writeback_en = 1'b1;
             transfer = 1'b1; //addr 값 들감  이때 bus 신호 내보내기 
                         end
             `OP_TYPE_B: begin
@@ -134,7 +135,7 @@ module ControlUnit (
         WAIT_EXECUTE: begin
              case(opcode)
                `OP_TYPE_R:  next_state = FETCH;
-               `OP_TYPE_L:  if(ready) next_state = WRITEBACK; else next_state = WAIT_EXECUTE;
+               `OP_TYPE_L: if(ready) next_state = WRITEBACK; else next_state = WAIT_EXECUTE;
                `OP_TYPE_I:  next_state = FETCH;
                `OP_TYPE_B:  next_state = FETCH;
                `OP_TYPE_LU:  next_state = FETCH;

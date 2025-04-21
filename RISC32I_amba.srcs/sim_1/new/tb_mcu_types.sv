@@ -23,15 +23,20 @@
 module tb_mcu_types();
 
 logic clk, reset;
+logic [7:0] GPIO_INPORT, GPIO_OUTPORT;
 MCU u_mcu (
     .clk(clk),
-    .reset(reset)
+    .reset(reset),
+    .GPIO_INPORT(GPIO_INPORT), // 밖으로 나가는 port 
+    .GPIO_OUTPORT(GPIO_OUTPORT)
 );
 
 always #5 clk = ~clk;
 initial begin
     clk = 0;
      reset = 1'b1;
-     #10 reset = 0;
+     #10 reset = 0; GPIO_INPORT = 8'h02;
+ 
+     
 end
 endmodule

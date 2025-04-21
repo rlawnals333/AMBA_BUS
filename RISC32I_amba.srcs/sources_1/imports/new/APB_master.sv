@@ -184,10 +184,10 @@ module APB_Decoder (  // selector memory mapping
         y = 0;
         if (en) begin
             case (sel[15:12]) // 얘는 메모리 맵에 따라 변경 
-                1'h0: y = 4'b0001;  //ram
-                1'h1: y = 4'b0010;  // peri1
-                1'h2: y = 4'b0100;  // peri2
-                1'h3: y = 4'b1000;  //peri3 
+                4'h0: y = 4'b0001;  //ram
+                4'h1: y = 4'b0010;  // peri1
+                4'h2: y = 4'b0100;  // peri2
+                4'h3: y = 4'b1000;  //peri3 
                 // 20'h1000_
                 // 20'h1000_
                 // 20'h1000_
@@ -223,10 +223,10 @@ module APB_Mux (  //read date 보내고 ready신호
     always_comb begin
         rdata = 0;
         case (sel[15:12]) //31:12
-            1'h0: rdata = d0;  //ram
-            1'h1: rdata = d1;  // peri1
-            1'h2: rdata = d2;  // peri2
-            1'h3: rdata = d3;  //peri3 
+            4'h0: rdata = d0;  //ram
+            4'h1: rdata = d1;  // peri1
+            4'h2: rdata = d2;  // peri2
+            4'h3: rdata = d3;  //peri3 
             //20'h1000_1
 
         endcase
@@ -235,10 +235,10 @@ module APB_Mux (  //read date 보내고 ready신호
     always_comb begin
         ready = 0;
         case (sel[15:12])
-            1'h0: ready = r0;  //ram
-            1'h1: ready = r1;  // peri1
-            1'h2: ready = r2;  // peri2
-            1'h3: ready = r3;  //peri3 
+            4'h0: ready = r0;  //ram
+            4'h1: ready = r1;  // peri1
+            4'h2: ready = r2;  // peri2
+            4'h3: ready = r3;  //peri3 
 
         endcase
     end
@@ -256,135 +256,3 @@ endmodule
 //p2 : 0x1000_2000 ~ 0x1000_2FFF;
 //~~
 
-module GPO_peri(
-    input logic PCLK,
-    input logic PRESET,
-
-    input logic [3:0] PADDR,  //4bit???  //알아서 자름 lsb 남김
-    input logic [31:0] PWDATA,
-    input logic PWRITE,
-    input logic PENABLE,
-    input logic PSEL,
-
-    output logic [31:0 ]PRDATA,
-    output logic PREADY,
-
-    output logic [7:0] outPort
-
-);
-
-logic [7:0] odr, moder;
-//  logic [31:0] slv_reg0;
-//  logic [31:0] slv_reg1;
-//  logic [31:0] slv_reg2;
-//  logic [31:0] slv_reg3;
-
-// assign moder = slv_reg0[7:0];
-// assign odr = slv_reg1[7:0];
-
-ABP_interface _abp_intf (.*);
-GPO u_gpo(.*);
-
-endmodule
-
-module ABP_interface (
-    input logic PCLK,
-    input logic PRESET,
-
-    input logic [3:0] PADDR,  //4bit???  //알아서 자름 lsb 남김
-    input logic [31:0] PWDATA,
-    input logic PWRITE,
-    input logic PENABLE,
-    input logic PSEL,
-
-    output logic [31:0 ]PRDATA,
-    output logic PREADY
-);
-    logic [31:0] slv_reg0;
-    logic [31:0] slv_reg1;
-    logic [31:0] slv_reg2;
-    logic [31:0] slv_reg3;
-    //ff 안에서는 PREADY = 0 안해도 latch 발생 안함 
-    logic c_ready, n_ready;
-
-    assign PREADY = n_ready;
- 
-    always_ff @(posedge PCLK, posedge PRESET) begin
-        if (PRESET) begin
-            slv_reg0 <= 0;
-            slv_reg1 <= 0;
-            slv_reg2 <= 0;
-            slv_reg3 <= 0;
-            PRDATA <= 0;
-            // PREADY <= 0;
-            c_ready <= 0;
-          
-        end else begin
-            c_ready <= n_ready;
-      
-            
-            if(PSEL) begin
-                if (PWRITE) begin
-                    case (PADDR) // 0000 => 0004 => 0008 => 000C 이런식으로 움직임 [3:2]만 바뀜
-                        0: slv_reg0 <= PWDATA;
-                        4: slv_reg1 <= PWDATA;
-                        8: slv_reg2 <= PWDATA;
-                        4'hC: slv_reg3 <= PWDATA;
-                    endcase
-                end else begin
-                   
-                    case (PADDR)
-                        0: PRDATA <= slv_reg0;
-                        4: PRDATA <= slv_reg1;
-                        8: PRDATA <= slv_reg2;
-                        4'hC: PRDATA <= slv_reg3;
-                    endcase
-                end
-            
-        end
-        end
-    end
-
-    always_comb begin
-        n_ready = c_ready;
-        if(PENABLE && PSEL)  n_ready = 1'b1;
-        else n_ready =0;
-    end
-
-endmodule
-
-
-module GPO (
-    input logic [7:0] moder,
-    input logic [7:0] odr,
-
-    output logic [7:0] outPort
-);
-
-// assign outPort[0] = moder[0] ? odr[0] : 1'bz;
-// assign outPort[1] = moder[1] ? odr[1] : 1'bz;
-// assign outPort[2] = moder[2] ? odr[2] : 1'bz;
-// assign outPort[3] = moder[3] ? odr[3] : 1'bz;
-// assign outPort[4] = moder[4] ? odr[4] : 1'bz;
-// assign outPort[5] = moder[5] ? odr[5] : 1'bz;
-// assign outPort[6] = moder[6] ? odr[6] : 1'bz;
-// assign outPort[7] = moder[7] ? odr[7] : 1'bz;
-
-genvar i;
-generate
-    for(i=0; i<8; i++) begin
-        assign outPort = moder[i]? odr[i]:1'bz;
-    end
-    
-endgenerate
-
-// genvar : 실제 hw
-
-// always_comb begin
-//     for(int i =0; i<8; i++) begin
-//         outPort = moder[i]? odr[i]:1'bz;
-//     end
-// end
-
-
-endmodule

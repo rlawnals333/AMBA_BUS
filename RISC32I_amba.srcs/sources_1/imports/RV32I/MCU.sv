@@ -4,8 +4,8 @@ module MCU (
     input logic clk,
     input logic reset,
 
-    output logic [7:0] GPOA_PORT, // 밖으로 나가는 port 
-    input logic [7:0] GPIB_PORT
+    input logic [7:0] GPIO_INPORT, // 밖으로 나가는 port 
+    output logic [7:0] GPIO_OUTPORT
 );
     logic [31:0] instrCode;
     logic [31:0] instrMemAddr;
@@ -43,32 +43,51 @@ module MCU (
     .PREADY(PREADY_RAM)
  );
 
- GPO_peri GPO_A(
+//  ABP_interface_GPO GPO_A(
+//     .*,
+//     .PCLK(clk),
+//     .PRESET(reset),
+
+
+//     .PSEL(PSEL1),
+
+//     .PRDATA(PRDATA1),
+//     .PREADY(PREADY1),
+
+//     .outPort(GPOA_PORT)
+
+// );
+
+//  ABP_interface_GPI GPI_B(
+//     .*,
+//     .PCLK(clk),
+//     .PRESET(reset),
+
+
+//     .PSEL(PSEL2),
+
+//     .PRDATA(PRDATA2),
+//     .PREADY(PREADY2),
+
+//     .inPort(GPIB_PORT)
+
+// );
+
+ABP_interface_GPIO u_GPIO_INTF (
     .PCLK(clk),
     .PRESET(reset),
 
-
+    .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
+    .PWDATA(PWDATA),
+    .PWRITE(PWRITE),
+    .PENABLE(PENABLE),
     .PSEL(PSEL1),
 
     .PRDATA(PRDATA1),
     .PREADY(PREADY1),
 
-    .outPort(GPOA_PORT)
-
-);
-
- GPI_peri GPI_B(
-    .PCLK(clk),
-    .PRESET(reset),
-
-
-    .PSEL(PSEL2),
-
-    .PRDATA(PRDATA2),
-    .PREADY(PREADY2),
-
-    .inPort(GPIB_PORT)
-
+    .inPort(GPIO_INPORT),
+    .outPort(GPIO_OUTPORT)
 );
 
 //   ABP_Slave u_slave(//이제 cpu 말고 bus랑 놀아야됨 
@@ -94,7 +113,7 @@ module MCU (
 
     .PSEL0(PSEL_RAM),
     .PSEL1(PSEL1),
-    .PSEL2(PSEL2),
+    .PSEL2(),
     .PSEL3(),
     // peri 한개당 1개씩 추가
     .PENABLE(PENABLE),
@@ -103,12 +122,12 @@ module MCU (
 
     .PRDATA0(PRDATA_RAM),
     .PRDATA1(PRDATA1),
-    .PRDATA2(PREADY2),
+    .PRDATA2(),
     .PRDATA3(),
     // peri 한개당 1개씩 추가
     .PREADY0(PREADY_RAM),
     .PREADY1(PREADY1),
-    .PREADY2(PREADY2),
+    .PREADY2(),
     .PREADY3(),// peri 한개당 1개씩 추가 (HRDATA에 같이 들어옴)
 
     //interface with cpu core(Internal interface signal)
