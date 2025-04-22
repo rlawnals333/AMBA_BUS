@@ -21,8 +21,8 @@ void delay(int n);
 
 void FND_ENABLE(FND_TypeDef *FNDx);
 void FND_DISABLE(FND_TypeDef *FNDx);
-void FND_COMM_init(FND_TypeDef *FNDx, uint32_t data);
-void FND_FONT_init(FND_TypeDef *FNDx, uint32_t data);
+void FND_COMM(FND_TypeDef *FNDx, uint32_t data);
+void FND_FONT(FND_TypeDef *FNDx, uint32_t data);
 
 
 int main()
@@ -38,8 +38,8 @@ int main()
 
         for(fmr_num =1;fmr_num<16; fmr_num++) {
             for(fdr_num =0; fdr_num < 10; fdr_num++) {
-                FND_COMM_init(FND,fmr_num);
-                FND_FONT_init(FND,fdr_num);
+                FND_COMM(FND,fmr_num);
+                FND_FONT(FND,fdr_num);
                 delay(100000);
             }
             delay(100000);
@@ -119,12 +119,12 @@ void FND_DISABLE(FND_TypeDef *FNDx)
     FNDx->FCR = 0;
 }
 
-void FND_COMM_init(FND_TypeDef *FNDx, uint32_t data)
+void FND_COMM(FND_TypeDef *FNDx, uint32_t data)
 {
     FNDx->FMR = data;
 }
 
-void FND_FONT_init(FND_TypeDef *FNDx, uint32_t data)
+void FND_FONT(FND_TypeDef *FNDx, uint32_t data)
 {
     FNDx->FDR = data;
 }
