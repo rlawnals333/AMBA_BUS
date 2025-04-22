@@ -26,6 +26,7 @@ logic clk, reset;
 
 wire [7:0] fndfont;
 wire [3:0] fndcomm;
+wire [7:0] GPIOA_INOUTPORT,GPIOB_INOUTPORT,GPIOC_INOUTPORT,GPIOD_INOUTPORT;
 MCU u_mcu (
     .*,
     .clk(clk),
@@ -33,13 +34,13 @@ MCU u_mcu (
     // 밖으로 나가는 port 
     
 );
-// logic [7:0] temp;
-// assign GPIO_INOUTPORT = temp;
+logic [7:0] temp;
+assign GPIOA_INOUTPORT = temp;
 always #5 clk = ~clk;
 initial begin
     clk = 0;
      reset = 1'b1;
-     #10 reset = 0; 
+     #10 reset = 0; temp = 1; 
  
      
 end

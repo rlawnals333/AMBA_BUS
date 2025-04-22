@@ -22,6 +22,19 @@
 //inout MODE 0: 읽기 1 쓰기 
 //쓰기 -> 읽기 반복?  합쳐보자 
 
+// interface Decoder_intf#(parameter SLAVE_NUM =6);
+
+// logic en;
+// logic [31:0] sel;
+// logic [SLAVE_NUM-1:0]y; //배열은 가능 
+
+// modport slave(input en, input sel, output y);
+
+// endinterface
+
+// parameter SLAVE_NUM =6;
+// typedef Decoder_intf#(SLAVE_NUM) local_intf;
+
 module APB_master (
     //global signal
     input logic PCLK,
@@ -76,7 +89,7 @@ module APB_master (
     logic [31:0] temp_addr_next, temp_wdata_next, temp_addr_reg, temp_wdata_reg;
 
     logic decoder_en;
-    logic [4:0] pselx;
+    logic [5:0] pselx;
 
 
     assign PSEL0 = pselx[0];
@@ -162,6 +175,16 @@ module APB_master (
 
         .y(pselx)
     );
+    // Decoder_intf#(SLAVE_NUM) bus(); //실체화
+    // APB_Decoder#(SLAVE_NUM)(.bus(bus));
+
+    //     initial begin
+    //     bus.en = decoder_en;
+    //     bus.sel = temp_addr_reg;
+        
+    //     pselx = bus.y; 
+    //     end
+  
 
     APB_Mux mux_abp (
         .sel(temp_addr_reg),  // address = decoder와 같은 거임
@@ -187,21 +210,35 @@ module APB_master (
 
 endmodule
 
+
+
+
+
+// module APB_Decoder #(parameter SLAVE_NUM = 6) (local_intf.slave bus);
+
+// always_comb begin
+//     bus.y = 0;
+//     for(int i=0; i<SLAVE_NUM; i++) begin
+//         if(bus.en) bus.y[i] = (bus.sel[15:12] == i) ? 1'b1 : 0;  //1bit 씩 
+//     end
+// end
+// endmodule
+
 module APB_Decoder (  // selector memory mapping
     input logic en,
     input logic [31:0] sel,  //address
 
-    output logic [4:0] y  //비트수 조정  //sel
+    output logic [5:0] y  //비트수 조정  //sel
 );
     always_comb begin
         y = 0;
         if (en) begin
             case (sel[15:12]) // 얘는 메모리 맵에 따라 변경 
-                4'h0: y = 5'b000001;  //ram
-                4'h1: y = 5'b000010;  // peri1
-                4'h2: y = 5'b000100;  // peri2
-                4'h3: y = 5'b001000;  //peri3 
-                4'h4: y = 5'b010000;  //peri4  
+                4'h0: y = 6'b000001;  //ram
+                4'h1: y = 6'b000010;  // peri1
+                4'h2: y = 6'b000100;  // peri2
+                4'h3: y = 6'b001000;  //peri3 
+                4'h4: y = 6'b010000;  //peri4  
                 4'h5: y = 6'b100000;  //peri5
                 // 20'h1000_
                 // 20'h1000_
@@ -245,9 +282,9 @@ module APB_Mux (  //read date 보내고 ready신호
             4'h0: rdata = d0;  //ram
             4'h1: rdata = d1;  // peri1
             4'h2: rdata = d2;  // peri2
-            4'h3: rdata = d3;
-            4'h4: rdata = d4;
-            4'h5: rdata = d5;   //peri3 
+            4'h3: rdata = d3;   //peri3
+            4'h4: rdata = d4;   //peri4
+            4'h5: rdata = d5;   //peri5
             //20'h1000_1
 
         endcase
@@ -259,9 +296,9 @@ module APB_Mux (  //read date 보내고 ready신호
             4'h0: ready = r0;  //ram
             4'h1: ready = r1;  // peri1
             4'h2: ready = r2;  // peri2
-            4'h3: ready = r3;
-            4'h4: ready = r4;  //peri3 
-            4'h5: ready = r5;
+            4'h3: ready = r3;   //peri3 
+            4'h4: ready = r4;  //peri4
+            4'h5: ready = r5;//peri5 
         endcase
     end
     //ready 한클럭?? 
@@ -277,4 +314,6 @@ endmodule
 //p1 : 0x1000_1000 ~ 0x1000_1FFF;
 //p2 : 0x1000_2000 ~ 0x1000_2FFF;
 //~~
+
+//assign + generate + parameter로  더 쉽게 짤 수 있을 듯? 
 

@@ -4,9 +4,9 @@ module MCU (
     input logic clk,
     input logic reset,
 
-    inout logic [7:0] GPIOA_INOUTPORT, GPIOB_INOUTPORT,  GPIOC_INOUTPORT,  GPIOD_INOUTPORT,
-    output [3:0] fndcomm,
-    output [7:0] fndfont // 밖으로 나가는 port 
+    inout logic [7:0] GPIOA_INOUTPORT, GPIOB_INOUTPORT,  GPIOC_INOUTPORT, GPIOD_INOUTPORT,
+    output logic [3:0] fndcomm,
+    output logic [7:0] fndfont // 밖으로 나가는 port 
     // output logic [7:0] GPIO_OUTPORT
 );
     logic [31:0] instrCode;

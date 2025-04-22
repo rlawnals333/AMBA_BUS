@@ -38,12 +38,12 @@ module GPIO (
 endmodule
 
 
-module GPI (
-    input logic [7:0] moder, //core 에서 받아오는거임 / ram 활용용
-    output logic [7:0] idr, // inport 값 활용 
+// module GPI (
+//     input logic [7:0] moder, //core 에서 받아오는거임 / ram 활용용
+//     output logic [7:0] idr, // inport 값 활용 
 
-    input logic [7:0] inPort
-);
+//     input logic [7:0] inPort
+// );
 
 // assign outPort[0] = moder[0] ? odr[0] : 1'bz;
 // assign outPort[1] = moder[1] ? odr[1] : 1'bz;
@@ -54,14 +54,14 @@ module GPI (
 // assign outPort[6] = moder[6] ? odr[6] : 1'bz;
 // assign outPort[7] = moder[7] ? odr[7] : 1'bz;
 
-genvar i;
-generate
-    for(i=0; i<8; i++) begin
-        assign idr[i] = ~moder[i]? inPort[i]:1'bz;
-    end
+// genvar i;
+// generate
+//     for(i=0; i<8; i++) begin
+//         assign idr[i] = ~moder[i]? inPort[i]:1'bz;
+//     end
     
-endgenerate
-endmodule
+// endgenerate
+// endmodule
 
 module ABP_interface_GPIO (
     input logic PCLK,
