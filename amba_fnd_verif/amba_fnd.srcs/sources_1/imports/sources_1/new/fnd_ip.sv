@@ -20,9 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module fnd_ip(
+module fnd_ip #(parameter FCOUNT = 1000_00)(
+    input logic [1:0] sel,
+
     input logic FCR,
-    input logic [3:0] FMR,
+    // input logic [3:0] FMR,
+    
     input logic [$clog2(10000)-1:0] FDR,
     input logic [3:0] FPR,
 
@@ -30,12 +33,18 @@ module fnd_ip(
     output logic [7:0] fndfont
     );
 
+    logic [3:0] FMR;
+    assign FMR = (sel == 0) ? 4'b0001 : (sel == 1)? 4'b0010 : (sel == 2) ? 4'b0100 : 4'b1000;
+
     genvar i;
     generate
         for(i=0;i<4;i++) begin
             assign fndcomm[i] = (FCR) ? ~FMR[i] : 1'b1;
         end
     endgenerate
+
+   
+
 
     // 걍 assign fndcomm = ~FMR ; 하면돼
     logic [3:0] num_1,num_10,num_100,num_1000;
@@ -75,7 +84,7 @@ module fnd_ip(
  //dp memory 하나 추가 c언어로 dot 포인트 지정 
 endmodule
 
-module ABP_interface_fnd (
+module ABP_interface_fnd #(parameter FCOUNT = 1000_00)(
     input logic PCLK,
     input logic PRESET,
 
@@ -90,11 +99,12 @@ module ABP_interface_fnd (
 
     output logic [3:0] fndcomm,
     output logic [7:0] fndfont
+
     // output logic [7:0] outPort
 );
-    logic [31:0] slv_reg0;
-    logic [31:0] slv_reg1;
-    logic [31:0] slv_reg2;
+    logic [31:0] slv_reg0; //fcr
+    logic [31:0] slv_reg1; //fdr
+    logic [31:0] slv_reg2; //fpr
     logic [31:0] slv_reg3;
     //ff 안에서는 PREADY = 0 안해도 latch 발생 안함 
     logic c_ready, n_ready;
@@ -109,7 +119,7 @@ module ABP_interface_fnd (
             slv_reg0 <= 0;
             slv_reg1 <= 0; // assign해서 input으로 받게 만들고선 초기화하면 안됨 
             slv_reg2 <= 0;
-            slv_reg3 <= 0;
+            // slv_reg3 <= 0;
             PRDATA <= 0;
             // PREADY <= 0;
             c_ready <= 0;
@@ -124,7 +134,7 @@ module ABP_interface_fnd (
                         0: slv_reg0 <= PWDATA; // idr은 inPort로 부터 오는 값이므로 core에서 건들면 안됨 
                         4: slv_reg1 <= PWDATA;
                         8: slv_reg2 <= PWDATA;
-                        12:slv_reg3 <= PWDATA; // 주소눈 BYTE 단위인데 4바이트 짜리 데이터니까 4씩 증가함 
+                        // 12:slv_reg3 <= PWDATA; // 주소눈 BYTE 단위인데 4바이트 짜리 데이터니까 4씩 증가함 
                         // 4'hC: slv_reg3 <= PWDATA;
                     endcase
                 end else begin
@@ -133,7 +143,7 @@ module ABP_interface_fnd (
                         0: PRDATA <= slv_reg0;
                         4: PRDATA <= slv_reg1;
                         8: PRDATA <= slv_reg2;
-                        12:PRDATA <= slv_reg3;
+                        // 12:PRDATA <= slv_reg3;
                         // 4'hC: PRDATA <= slv_reg3;
                     endcase
                 end
@@ -141,20 +151,54 @@ module ABP_interface_fnd (
         end
         end
     end
-
+    logic[1:0] sel;
     always_comb begin
         n_ready = c_ready;
         if(PENABLE && PSEL)  n_ready = 1'b1;
         else n_ready =0;
     end
+    counter #(.FCOUNT(FCOUNT)) u_counter(
+    .clk(PCLK),
+    .reset(PRESET),
+
+    .sel(sel)
+
+);
  fnd_ip ip_fnd(
     .FCR(slv_reg0[0]),
-    .FMR(slv_reg1[3:0]),
-    .FDR(slv_reg2[$clog2(10000)-1:0]),
-    .FPR(slv_reg3[3:0]),
+    // .FMR(slv_reg1[3:0]),
+    .FDR(slv_reg1[$clog2(10000)-1:0]),
+    .FPR(slv_reg2[3:0]),
+    .sel(sel),
 
     .fndcomm(fndcomm),
     .fndfont(fndfont)
     );
 
+endmodule
+
+module counter #(parameter FCOUNT = 1000_00, BIT_SIZE = $clog2(FCOUNT)) (
+    input logic clk,
+    input logic reset,
+
+    output logic [1:0] sel
+
+);
+    logic [BIT_SIZE-1:0] counter;
+    
+  always_ff @(posedge clk, posedge reset) begin
+    if(reset) begin 
+        sel <= 0;
+        counter <= 0;
+    end
+    else begin
+        if(counter == FCOUNT -1) begin
+            sel <= sel + 1;
+            counter <= 0;
+        end
+        else counter <= counter + 1;
+    end
+  end
+
+  
 endmodule

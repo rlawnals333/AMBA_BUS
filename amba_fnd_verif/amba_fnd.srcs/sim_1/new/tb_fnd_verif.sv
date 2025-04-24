@@ -34,19 +34,16 @@ class transaction;
     logic      [ 3:0] fndcomm;  // dut out data
     logic      [ 7:0] fndfont;
 
-    constraint c_paddr {PADDR inside {4'h0, 4'h4, 4'h8, 4'hC};}
+    constraint c_paddr {PADDR inside {4'h0, 4'h4, 4'h8};}
     constraint c_wdata {
 
         if (PADDR == 4'h0)
         PWDATA inside {0, 1};
         else
         if (PADDR == 4'h4)
-        PWDATA inside {4'b0001, 4'b1000, 4'b0100, 4'b0010};
-        else
-        if (PADDR == 4'h8)
         PWDATA < 10000;
         else
-        if (PADDR == 4'hc) PWDATA < 4'b1111;
+        if (PADDR == 4'h8) PWDATA < 4'b1111;
     }
     task display(string name);
         $display(
@@ -195,9 +192,9 @@ class scoreboard;
     int pass_cnt;
     int fail_cnt;
     int not_sel_cnt;
-
-    logic [31:0] ref_fnd_reg[0:3];
-    logic [7:0] ref_fndfont[0:19] = {
+    logic[7:0] expected_font;
+    logic [31:0] ref_fnd_reg[0:2];
+    logic [7:0] ref_fndfont[0:9] = {
         8'hc0,
         8'hf9,
         8'ha4,
@@ -207,19 +204,8 @@ class scoreboard;
         8'h82,
         8'hf8,
         8'h80,
-        8'h90,
+        8'h90
 
-        //
-        8'hc0 - (2**7), //dot 켜진 버전 
-        8'hf9 - (2**7),
-        8'ha4 - (2**7),
-        8'hb0 - (2**7),
-        8'h99 - (2**7),
-        8'h92 - (2**7),
-        8'h82 - (2**7),
-        8'hf8 - (2**7),
-        8'h80 - (2**7),
-        8'h90 - (2**7)
     };
 
     function new(mailbox #(transaction) Mon2Scb_mbox,
@@ -228,9 +214,10 @@ class scoreboard;
     this.Mon2Scb_mbox = Mon2Scb_mbox;
     this.mon_end = mon_end;
     this.scb_end = scb_end;
-    for(int i=0;i<4;i++) begin
+    for(int i=0;i<3;i++) begin
         ref_fnd_reg[i] = 0;
     end
+    expected_font = 0;
     
     total_cnt = 0;
     write_cnt = 0;
@@ -263,102 +250,28 @@ class scoreboard;
             else begin
              //너무 당연하게 되는건 제외 지금부터는 font값 잘나오는지 종합 확인 
              //font 값이 fmr 값마다 다르게 나오므로 이걸 기준으로 잡자
-                if(ref_fnd_reg[1] == 4'b0001) begin
-                    if((ref_fnd_reg[1] & ref_fnd_reg[3]) != 0) begin // dot있을때때
-                        if(ref_fndfont[10+(ref_fnd_reg[2]%10)] != fnd_tr.fndfont) begin
-                            fail_cnt++;
-                            $display("Mismatch fndfont: %h != %h", ref_fndfont[10+(ref_fnd_reg[2]%10)],fnd_tr.fndfont);
-                        end
-                        else begin
-                            pass_cnt++;
-                            $display("Match fndfont: %h == %h", ref_fndfont[10+(ref_fnd_reg[2]%10)],fnd_tr.fndfont);
-                        end
-                    end
-                    else begin
-                        if(ref_fndfont[(ref_fnd_reg[2]%10)] != fnd_tr.fndfont) begin
-                            fail_cnt++;
-                            $display("Mismatch fndfont: %h != %h", ref_fndfont[(ref_fnd_reg[2]%10)],fnd_tr.fndfont);
-                        end
-                        else begin
-                            pass_cnt++;
-                            $display("Match fndfont: %h == %h", ref_fndfont[(ref_fnd_reg[2]%10)],fnd_tr.fndfont);
-                        end
-                    end
 
-                end
-                else if(ref_fnd_reg[1] == 4'b0010) begin
-                     if((ref_fnd_reg[1] & ref_fnd_reg[3]) != 0) begin // dot있을때때
-                        if(ref_fndfont[10+(ref_fnd_reg[2]/10%10)] != fnd_tr.fndfont) begin
-                            fail_cnt++;
-                            $display("Mismatch fndfont: %h != %h", ref_fndfont[10+(ref_fnd_reg[2]/10%10)],fnd_tr.fndfont);
-                        end
-                        else begin
-                            pass_cnt++;
-                            $display("Match fndfont: %h == %h", ref_fndfont[10+(ref_fnd_reg[2]/10%10)],fnd_tr.fndfont);
-                        end
-                    end
-                    else begin
-                        if(ref_fndfont[(ref_fnd_reg[2]/10%10)] != fnd_tr.fndfont) begin
-                            fail_cnt++;
-                            $display("Mismatch fndfont: %h != %h", ref_fndfont[(ref_fnd_reg[2]/10%10)],fnd_tr.fndfont);
-                        end
-                        else begin
-                            pass_cnt++;
-                            $display("Match fndfont: %h == %h", ref_fndfont[(ref_fnd_reg[2]/10%10)],fnd_tr.fndfont);
-                        end
-                    end
-                    
-                end
-                else if(ref_fnd_reg[1] == 4'b0100) begin
-                        if((ref_fnd_reg[1] & ref_fnd_reg[3]) != 0) begin // dot있을때때
-                            if(ref_fndfont[10+(ref_fnd_reg[2]/100%10)] != fnd_tr.fndfont) begin
-                                fail_cnt++;
-                                $display("Mismatch fndfont: %h != %h", ref_fndfont[10+(ref_fnd_reg[2]/100%10)],fnd_tr.fndfont);
-                            end
-                            else begin
-                                pass_cnt++;
-                                $display("Match fndfont: %h == %h", ref_fndfont[10+(ref_fnd_reg[2]/100%10)],fnd_tr.fndfont);
-                            end
-                        end
-                        else begin
-                            if(ref_fndfont[(ref_fnd_reg[2]/100%10)] != fnd_tr.fndfont) begin
-                                fail_cnt++;
-                                $display("Mismatch fndfont: %h != %h", ref_fndfont[(ref_fnd_reg[2]/100%10)],fnd_tr.fndfont);
-                            end
-                            else begin
-                                pass_cnt++;
-                                $display("Match fndfont: %h == %h", ref_fndfont[(ref_fnd_reg[2]/100%10)],fnd_tr.fndfont);
-                            end
-                        end
-                    
-                end
-                else if(ref_fnd_reg[1] == 4'b1000) begin
-                    if((ref_fnd_reg[1] & ref_fnd_reg[3]) != 0) begin // dot있을때때
-                            if(ref_fndfont[10+(ref_fnd_reg[2]/1000%10)] != fnd_tr.fndfont) begin
-                                fail_cnt++;
-                                $display("Mismatch fndfont: %h != %h", ref_fndfont[10+(ref_fnd_reg[2]/1000%10)],fnd_tr.fndfont);
-                            end
-                            else begin
-                                pass_cnt++;
-                                $display("Match fndfont: %h == %h", ref_fndfont[10+(ref_fnd_reg[2]/1000%10)],fnd_tr.fndfont);
-                            end
-                        end
-                    else begin
-                            if(ref_fndfont[(ref_fnd_reg[2]/1000%10)] != fnd_tr.fndfont) begin
-                                fail_cnt++;
-                                $display("Mismatch fndfont: %h != %h", ref_fndfont[(ref_fnd_reg[2]/1000%10)],fnd_tr.fndfont);
-                            end
-                            else begin
-                                pass_cnt++;
-                                $display("Match fndfont: %h == %h", ref_fndfont[(ref_fnd_reg[2]/1000%10)],fnd_tr.fndfont);
-                            end
-                        end
-                    
-                end
+                int sel = (~fnd_tr.fndcomm == 4'b0001) ? 0 :(~fnd_tr.fndcomm == 4'b0010) ? 1: (~fnd_tr.fndcomm == 4'b0100) ? 2 : (~fnd_tr.fndcomm == 4'b1000) ? 3 : -1; // -1 이상함
 
+                if(sel == -1) $display("input FMR error");
+                else begin
+                    int expected_digit = (ref_fnd_reg[1] /(10**sel))%10;
+                    
+                    expected_font = ((~fnd_tr.fndcomm & ref_fnd_reg[2][3:0]) != 0) ?  {1'b0,ref_fndfont[expected_digit][6:0]} : ref_fndfont[expected_digit] ;
+                    // $display("%d,%d,%d,%h",ref_fnd_reg[1],~fnd_tr.fndcomm,expected_digit,expected_font);
+                    if(expected_font != fnd_tr.fndfont) begin
+                        fail_cnt++;
+                        $display("Mismatch fndfont: %h != %h", expected_font,fnd_tr.fndfont);
+                    end
+                    else begin
+                        pass_cnt++;
+                        $display("Match fndfont: %h == %h", expected_font,fnd_tr.fndfont);
+                    end
                 end
             end
-        else if(~fnd_tr.PWRITE && fnd_tr.PSEL) begin
+                
+        end
+        else if (~fnd_tr.PWRITE && fnd_tr.PSEL) begin
             read_cnt++;
             if(ref_fnd_reg[fnd_tr.PADDR[3:2]] != fnd_tr.PRDATA) begin
                 fail_cnt++;
@@ -377,7 +290,11 @@ class scoreboard;
         #10;
         ->scb_end;
     end
-        
+endtask
+
+task report();
+ $display("total:%d,write:%d,read:%d,pass:%d,fail:%d,not_sel:%d",total_cnt,write_cnt,read_cnt,pass_cnt,fail_cnt,not_sel_cnt);
+       
 endtask
 endclass
 
@@ -411,6 +328,7 @@ class envirnment;
             fnd_mon.run();
             fnd_scb.run();
         join_any;
+            fnd_scb.report();
     endtask
 endclass
 
@@ -435,6 +353,7 @@ module tb_fnd_verif ();
         // outport signals
         .fndcomm(fnd_intf.fndcomm),
         .fndfont(fnd_intf.fndfont)
+        
     );
 
         initial begin
@@ -444,7 +363,6 @@ module tb_fnd_verif ();
         fnd_env = new(fnd_intf); //  함수내에서 new 
         fnd_env.run(1000);
         #30;
-        $display("total:%d,write:%d,read:%d,pass:%d,fail:%d,not_sel:%d",fnd_env.fnd_scb.total_cnt,fnd_env.fnd_scb.write_cnt,fnd_env.fnd_scb.read_cnt,fnd_env.fnd_scb.pass_cnt,fnd_env.fnd_scb.fail_cnt,fnd_env.fnd_scb.not_sel_cnt);
         $finish;
     end
 endmodule

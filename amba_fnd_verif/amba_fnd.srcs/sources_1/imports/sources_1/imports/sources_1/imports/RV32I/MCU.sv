@@ -8,7 +8,9 @@ module MCU (
     output logic [3:0] fndcomm,
     output logic [7:0] fndfont // 밖으로 나가는 port 
     // output logic [7:0] GPIO_OUTPORT
-);
+);  
+    parameter FCOUNT = 10 ; // display hz 조절 시뮬 or 실제 1khz
+
     logic [31:0] instrCode;
     logic [31:0] instrMemAddr;
     
@@ -164,7 +166,7 @@ ABP_interface_GPIO u_GPIOD_INTF (
     // .outPort(GPIO_OUTPORT)
 );
 
- ABP_interface_fnd apb_fnd (
+ ABP_interface_fnd #(.FCOUNT(FCOUNT)) apb_fnd (
     .PCLK(clk),
     .PRESET(reset),
 
