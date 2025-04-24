@@ -45,6 +45,7 @@ class transaction;
         else
         if (PADDR == 4'h8) PWDATA < 4'b1111;
     }
+    constraint c_sel {PSEL dist {1'b0 := 10, 1'b1:= 90};} // 확률 분배 
     task display(string name);
         $display(
             "[%s] PADDR=%h, PWDATA=%h, PWRITE=%h, PENABLE=%h, PSEL=%h, PRDATA=%h, PREADY=%h, fndCom=%h, fndFont=%h",
@@ -293,7 +294,18 @@ class scoreboard;
 endtask
 
 task report();
- $display("total:%d,write:%d,read:%d,pass:%d,fail:%d,not_sel:%d",total_cnt,write_cnt,read_cnt,pass_cnt,fail_cnt,not_sel_cnt);
+$display("=======================================================");
+$display("=======              final  report              =======");
+$display("=======================================================");
+$display("write   test   :%d",write_cnt);
+$display("read    test   :%d,",read_cnt);
+$display("pass    test   :%d",pass_cnt);
+$display("fail:   test:   %d",fail_cnt);
+$display("not_sel test:   %d",not_sel_cnt);
+$display("total   test:   %d",total_cnt);
+$display("=======================================================");
+$display("=======           testbench is  finished!!      =======");
+$display("=======================================================");
        
 endtask
 endclass
