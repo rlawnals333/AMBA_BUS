@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_APB_BUS_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_APB_BUS" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="584.501 ns"></ZoomEndTime>
+      <Cursor1Time time="285.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="210"></NameColumnWidth>
+      <ValueColumnWidth column_width="116"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="90" />
+   <wvobject fp_name="/tb_APB_BUS/PCLK" type="logic">
+      <obj_property name="ElementShortName">PCLK</obj_property>
+      <obj_property name="ObjectShortName">PCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/PRESET" type="logic">
+      <obj_property name="ElementShortName">PRESET</obj_property>
+      <obj_property name="ObjectShortName">PRESET</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/wdata" type="array">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/current_state" type="array">
+      <obj_property name="ElementShortName">current_state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">current_state[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/addr" type="array">
+      <obj_property name="ElementShortName">addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/rdata" type="array">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/write" type="logic">
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/transfer" type="logic">
+      <obj_property name="ElementShortName">transfer</obj_property>
+      <obj_property name="ObjectShortName">transfer</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/ready" type="logic">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider27">
+      <obj_property name="label">decoder</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/decoder_abp/en" type="logic">
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/decoder_abp/sel" type="array">
+      <obj_property name="ElementShortName">sel[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sel[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/decoder_abp/y" type="array">
+      <obj_property name="ElementShortName">y[3:0]</obj_property>
+      <obj_property name="ObjectShortName">y[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider45">
+      <obj_property name="label">master</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PCLK" type="logic">
+      <obj_property name="ElementShortName">PCLK</obj_property>
+      <obj_property name="ObjectShortName">PCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PRESET" type="logic">
+      <obj_property name="ElementShortName">PRESET</obj_property>
+      <obj_property name="ObjectShortName">PRESET</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PADDR" type="array">
+      <obj_property name="ElementShortName">PADDR[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PADDR[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PSEL0" type="logic">
+      <obj_property name="ElementShortName">PSEL0</obj_property>
+      <obj_property name="ObjectShortName">PSEL0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PSEL1" type="logic">
+      <obj_property name="ElementShortName">PSEL1</obj_property>
+      <obj_property name="ObjectShortName">PSEL1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PSEL2" type="logic">
+      <obj_property name="ElementShortName">PSEL2</obj_property>
+      <obj_property name="ObjectShortName">PSEL2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PSEL3" type="logic">
+      <obj_property name="ElementShortName">PSEL3</obj_property>
+      <obj_property name="ObjectShortName">PSEL3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PENABLE" type="logic">
+      <obj_property name="ElementShortName">PENABLE</obj_property>
+      <obj_property name="ObjectShortName">PENABLE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PWDATA" type="array">
+      <obj_property name="ElementShortName">PWDATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PWDATA[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PWRITE" type="logic">
+      <obj_property name="ElementShortName">PWRITE</obj_property>
+      <obj_property name="ObjectShortName">PWRITE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PRDATA0" type="array">
+      <obj_property name="ElementShortName">PRDATA0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PRDATA1" type="array">
+      <obj_property name="ElementShortName">PRDATA1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PRDATA2" type="array">
+      <obj_property name="ElementShortName">PRDATA2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PRDATA3" type="array">
+      <obj_property name="ElementShortName">PRDATA3[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA3[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PREADY0" type="logic">
+      <obj_property name="ElementShortName">PREADY0</obj_property>
+      <obj_property name="ObjectShortName">PREADY0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PREADY1" type="logic">
+      <obj_property name="ElementShortName">PREADY1</obj_property>
+      <obj_property name="ObjectShortName">PREADY1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PREADY2" type="logic">
+      <obj_property name="ElementShortName">PREADY2</obj_property>
+      <obj_property name="ObjectShortName">PREADY2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/PREADY3" type="logic">
+      <obj_property name="ElementShortName">PREADY3</obj_property>
+      <obj_property name="ObjectShortName">PREADY3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/transfer" type="logic">
+      <obj_property name="ElementShortName">transfer</obj_property>
+      <obj_property name="ObjectShortName">transfer</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/ready" type="logic">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/addr" type="array">
+      <obj_property name="ElementShortName">addr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/wdata" type="array">
+      <obj_property name="ElementShortName">wdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/rdata" type="array">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/write" type="logic">
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/current_state" type="array">
+      <obj_property name="ElementShortName">current_state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">current_state[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/next_state" type="array">
+      <obj_property name="ElementShortName">next_state[1:0]</obj_property>
+      <obj_property name="ObjectShortName">next_state[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_write_next" type="logic">
+      <obj_property name="ElementShortName">temp_write_next</obj_property>
+      <obj_property name="ObjectShortName">temp_write_next</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_write_reg" type="logic">
+      <obj_property name="ElementShortName">temp_write_reg</obj_property>
+      <obj_property name="ObjectShortName">temp_write_reg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_addr_next" type="array">
+      <obj_property name="ElementShortName">temp_addr_next[31:0]</obj_property>
+      <obj_property name="ObjectShortName">temp_addr_next[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_wdata_next" type="array">
+      <obj_property name="ElementShortName">temp_wdata_next[31:0]</obj_property>
+      <obj_property name="ObjectShortName">temp_wdata_next[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_addr_reg" type="array">
+      <obj_property name="ElementShortName">temp_addr_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">temp_addr_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/temp_wdata_reg" type="array">
+      <obj_property name="ElementShortName">temp_wdata_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">temp_wdata_reg[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/decoder_en" type="logic">
+      <obj_property name="ElementShortName">decoder_en</obj_property>
+      <obj_property name="ObjectShortName">decoder_en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/pselx" type="array">
+      <obj_property name="ElementShortName">pselx[3:0]</obj_property>
+      <obj_property name="ObjectShortName">pselx[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider31">
+      <obj_property name="label">slv0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PCLK" type="logic">
+      <obj_property name="ElementShortName">PCLK</obj_property>
+      <obj_property name="ObjectShortName">PCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PRESET" type="logic">
+      <obj_property name="ElementShortName">PRESET</obj_property>
+      <obj_property name="ObjectShortName">PRESET</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PADDR" type="array">
+      <obj_property name="ElementShortName">PADDR[3:0]</obj_property>
+      <obj_property name="ObjectShortName">PADDR[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PWDATA" type="array">
+      <obj_property name="ElementShortName">PWDATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PWDATA[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PWRITE" type="logic">
+      <obj_property name="ElementShortName">PWRITE</obj_property>
+      <obj_property name="ObjectShortName">PWRITE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PENABLE" type="logic">
+      <obj_property name="ElementShortName">PENABLE</obj_property>
+      <obj_property name="ObjectShortName">PENABLE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PSEL" type="logic">
+      <obj_property name="ElementShortName">PSEL</obj_property>
+      <obj_property name="ObjectShortName">PSEL</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PRDATA" type="array">
+      <obj_property name="ElementShortName">PRDATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/PREADY" type="logic">
+      <obj_property name="ElementShortName">PREADY</obj_property>
+      <obj_property name="ObjectShortName">PREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/slv_reg0" type="array">
+      <obj_property name="ElementShortName">slv_reg0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg0[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/slv_reg1" type="array">
+      <obj_property name="ElementShortName">slv_reg1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg1[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/slv_reg2" type="array">
+      <obj_property name="ElementShortName">slv_reg2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg2[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave0/slv_reg3" type="array">
+      <obj_property name="ElementShortName">slv_reg3[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg3[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider92">
+      <obj_property name="label">slv1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PCLK" type="logic">
+      <obj_property name="ElementShortName">PCLK</obj_property>
+      <obj_property name="ObjectShortName">PCLK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PRESET" type="logic">
+      <obj_property name="ElementShortName">PRESET</obj_property>
+      <obj_property name="ObjectShortName">PRESET</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PADDR" type="array">
+      <obj_property name="ElementShortName">PADDR[3:0]</obj_property>
+      <obj_property name="ObjectShortName">PADDR[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PWDATA" type="array">
+      <obj_property name="ElementShortName">PWDATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PWDATA[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PWRITE" type="logic">
+      <obj_property name="ElementShortName">PWRITE</obj_property>
+      <obj_property name="ObjectShortName">PWRITE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PENABLE" type="logic">
+      <obj_property name="ElementShortName">PENABLE</obj_property>
+      <obj_property name="ObjectShortName">PENABLE</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PSEL" type="logic">
+      <obj_property name="ElementShortName">PSEL</obj_property>
+      <obj_property name="ObjectShortName">PSEL</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PRDATA" type="array">
+      <obj_property name="ElementShortName">PRDATA[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PRDATA[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/PREADY" type="logic">
+      <obj_property name="ElementShortName">PREADY</obj_property>
+      <obj_property name="ObjectShortName">PREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/slv_reg0" type="array">
+      <obj_property name="ElementShortName">slv_reg0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/slv_reg1" type="array">
+      <obj_property name="ElementShortName">slv_reg1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/slv_reg2" type="array">
+      <obj_property name="ElementShortName">slv_reg2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/slv_reg3" type="array">
+      <obj_property name="ElementShortName">slv_reg3[31:0]</obj_property>
+      <obj_property name="ObjectShortName">slv_reg3[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/c_ready" type="logic">
+      <obj_property name="ElementShortName">c_ready</obj_property>
+      <obj_property name="ObjectShortName">c_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_slave1/n_ready" type="logic">
+      <obj_property name="ElementShortName">n_ready</obj_property>
+      <obj_property name="ObjectShortName">n_ready</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider80">
+      <obj_property name="label">mux</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/sel" type="array">
+      <obj_property name="ElementShortName">sel[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sel[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/d0" type="array">
+      <obj_property name="ElementShortName">d0[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d0[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/d1" type="array">
+      <obj_property name="ElementShortName">d1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d1[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/d2" type="array">
+      <obj_property name="ElementShortName">d2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d2[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/d3" type="array">
+      <obj_property name="ElementShortName">d3[31:0]</obj_property>
+      <obj_property name="ObjectShortName">d3[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/r0" type="logic">
+      <obj_property name="ElementShortName">r0</obj_property>
+      <obj_property name="ObjectShortName">r0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/r1" type="logic">
+      <obj_property name="ElementShortName">r1</obj_property>
+      <obj_property name="ObjectShortName">r1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/r2" type="logic">
+      <obj_property name="ElementShortName">r2</obj_property>
+      <obj_property name="ObjectShortName">r2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/r3" type="logic">
+      <obj_property name="ElementShortName">r3</obj_property>
+      <obj_property name="ObjectShortName">r3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/rdata" type="array">
+      <obj_property name="ElementShortName">rdata[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[31:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_APB_BUS/u_master/mux_abp/ready" type="logic">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+</wave_config>
