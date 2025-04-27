@@ -4,7 +4,7 @@ interface fifo_interface (
     input logic clk,
     input logic reset
 );
-
+     logic PCLK;
      logic [3:0] PADDR;  //4bit???  //알아서 자름 lsb 남김
      logic [31:0] PWDATA;
      logic PWRITE;
@@ -43,7 +43,7 @@ interface fifo_interface (
     endclocking
 
     modport drv_mport(clocking drv_cb,
-        input reset
+        input reset, output PCLK
     );  // 방향성을 설정하여 실수를 줄일 수 있다.
     modport mon_mport(clocking mon_cb, input reset);
 
@@ -98,13 +98,13 @@ endclass  //generator
 
 class driver;  //신호 가공 
     mailbox #(transaction) GenToDrv_mbox;
-    virtual fifo_interface.drv_mport fifo_if;
+    virtual fifo_interface fifo_if;
     transaction fifo_tr;
     event gen_end;
     event drv_end;
 
     function new(mailbox#(transaction) GenToDrv_mbox,
-                 virtual fifo_interface.drv_mport fifo_if,event gen_end, event drv_end);
+                 virtual fifo_interface fifo_if,event gen_end, event drv_end);
         this.GenToDrv_mbox = GenToDrv_mbox;
         this.fifo_if = fifo_if;
         this.gen_end = gen_end;
@@ -134,17 +134,23 @@ class driver;  //신호 가공
     task run();
         forever begin
             @(gen_end);
-            @(fifo_if.drv_cb);
+            // @(fifo_if.drv_cb);
               //delay주니깐 된다 한잔해
             GenToDrv_mbox.get(fifo_tr);
             fifo_tr.display("DRV");
             // @(fifo_if.drv_cb);
-            fifo_if.drv_cb.PADDR <= fifo_tr.PADDR; //4bit???  //알아서 자름 lsb 남김
-            fifo_if.drv_cb.PWDATA <= fifo_tr.PWDATA;
+            fifo_if.PADDR <= fifo_tr.PADDR; //4bit???  //알아서 자름 lsb 남김
+            fifo_if.PWDATA <= fifo_tr.PWDATA;
             if(fifo_tr.PADDR == 4'h4) fifo_if.drv_cb.PWRITE <= 1'b1;
-            else fifo_if.drv_cb.PWRITE <= 0;
-            fifo_if.drv_cb.PSEL  <= fifo_tr.PSEL;
-            fifo_if.drv_cb.PENABLE <= 1'b1;
+            else fifo_if.PWRITE <= 0;
+            fifo_if.PSEL  <= fifo_tr.PSEL;
+             fifo_if.PENABLE <= 1'b0;
+             @(posedge fifo_if.PCLK);
+              fifo_if.PENABLE <= 1'b1;
+              @(posedge fifo_if.PCLK);
+              fifo_if.PENABLE <= 1'b0;
+
+            //  fifo_if.drv_cb.PENABLE <= 1'b0; // non block 순차
 
        //access //drive에서 가공 가능  
            
@@ -373,9 +379,10 @@ APB_interface_fifo dut(
     );
 
     always #5 clk = ~clk;
+    always #5 fifo_if.PCLK = ~fifo_if.PCLK;
 
     initial begin
-        clk = 0; reset = 1'b1;
+        clk = 0; reset = 1'b1; fifo_if.PCLK = 0;
         #10 reset = 0;
         env = new(fifo_if);
         env.run(20);
