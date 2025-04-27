@@ -141,7 +141,7 @@ module APB_master (
                 PADDR = temp_addr_reg;
                 PENABLE = 0;
                 // PSEL1 = 1'b1;
-                decoder_en = 1'b1;  // 이따 바꿀거임 
+                decoder_en = 1'b1;  // 이따 바꿀거임 PSEL
                 if (temp_write_reg) begin
                     PWRITE = 1'b1;
                     PWDATA = temp_wdata_reg;

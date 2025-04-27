@@ -94,7 +94,7 @@ class driver;
             fnd_intf.PWDATA  <= fnd_tr.PWDATA;
             fnd_intf.PWRITE  <= 1'b1;
             fnd_intf.PENABLE <= 1'b1;
-            fnd_intf.PSEL    <= 1'b1;
+            fnd_intf.PSEL    <= 1'b1; // PREADY. PRDATA : 출력이라서 받아야하는 입장임 moniotr
             @(posedge fnd_intf.PREADY);
             @(posedge fnd_intf.PCLK);
             @(posedge fnd_intf.PCLK);
