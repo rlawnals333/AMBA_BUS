@@ -2,17 +2,22 @@
 
 #define __IO volatile // 최적화없이 있는 그대로 값 사용 
 typedef struct{
-    __IO uint32_t MODER;
-    __IO uint32_t IDR;
-    __IO uint32_t ODR;
+    __IO uint32_t MODER; // 1: outputmode 0: inputmode 
+    __IO uint32_t IDR;  // input data
+    __IO uint32_t ODR;  // output data 
 } GPIO_TypeDef;
 
 typedef struct{
-    __IO uint32_t FCR;
-    __IO uint32_t FDR;
-    __IO uint32_t FPR;
+    __IO uint32_t FCR; // enable/disable
+    __IO uint32_t FDR; //fnd data
+    __IO uint32_t FPR; // fnd dot point 
 } FND_TypeDef;
 
+typedef struct{
+    __IO uint32_t FFE; //fifo full/ empty
+    __IO uint32_t FWD; //fifo write data
+    __IO uint32_t FRD; //fifo read data
+} FIFO_TypeDef;
 
 #define APB_BASEADDR 0x10000000 //0
 #define GPIOA_BASEADDR (APB_BASEADDR + 0x1000)//1
@@ -20,6 +25,7 @@ typedef struct{
 #define GPIOC_BASEADDR (APB_BASEADDR + 0x3000)//3
 #define GPIOD_BASEADDR (APB_BASEADDR + 0x4000)//4
 #define FND_BASEADDR (APB_BASEADDR + 0x5000) //psel5
+#define FIFO_BASEADDR (APB_BASEADDR + 0x6000) //psel6
 
 
 #define GPIOA ((GPIO_TypeDef *) GPIOA_BASEADDR)
@@ -27,6 +33,7 @@ typedef struct{
 #define GPIOC ((GPIO_TypeDef *) GPIOC_BASEADDR)
 #define GPIOD ((GPIO_TypeDef *) GPIOD_BASEADDR)
 #define FND ((FND_TypeDef *) FND_BASEADDR)
+#define FIFO ((FIFO_TypeDef *) FIFO_BASEADDR)
 
 
 void delay(int n);
@@ -48,6 +55,11 @@ void FND_COMM(FND_TypeDef *FNDx, uint32_t data);
 void FND_FONT(FND_TypeDef *FNDx, uint32_t data);
 void FND_DOT(FND_TypeDef *FNDx, uint32_t data);
 
+uint32_t FIFO_isFE(FIFO_TypeDef *FIFOx); //return uint32_t
+void FIFO_WRITE(FIFO_TypeDef *FIFOx, uint32_t data);
+uint32_t FIFO_READ(FIFO_TypeDef *FIFOx);
+
+
 
 
 
@@ -58,11 +70,26 @@ int main()
     uint32_t fdr_num =0 ;
     Switch_init(GPIOA);
     uint32_t count = 0;
+    uint32_t fifo_read;
     // uint32_t one = 1;
     // FND_COMM(FND,0x00f);
     // FND_DOT(FND,1<<0);
+    //  if(FIFO_isFE(FIFO) != 0x10) {
+    //             FIFO_WRITE(FIFO,1);
+    //       }
+    // if(FIFO_isFE(FIFO) != 0x01) {
+    //             fifo_read = FIFO_READ(FIFO);
+    //       }
      while(1)
-  {     
+  {      
+         
+        if(FIFO_isFE(FIFO) != 0x10) {
+            FIFO_WRITE(FIFO,count);
+            }
+
+         if(FIFO_isFE(FIFO) != 0x01) {
+            fifo_read = FIFO_READ(FIFO);
+          }
           if(count == 9999) { count = 0;}
 
           if(Switch_read(GPIOA) == 1) {
@@ -79,13 +106,14 @@ int main()
         //     }
         //     delay(100000);
         // }
-
-        FND_FONT(FND,count);
+        
+          
+        FND_FONT(FND,fifo_read);
         // delay(1);
         FND_DOT(FND,1<<0);
-        delay(100);
+        delay(300);
         FND_DOT(FND,0<<0);
-        delay(100);
+        delay(300);
         count += 1; 
         
      
@@ -179,4 +207,16 @@ void FND_FONT(FND_TypeDef *FNDx, uint32_t data)
 
 void FND_DOT(FND_TypeDef *FNDx, uint32_t data) {
     FNDx ->FPR = data;
+}
+
+uint32_t FIFO_isFE(FIFO_TypeDef *FIFOx) {
+    return FIFOx -> FFE;
+}
+
+void FIFO_WRITE(FIFO_TypeDef *FIFOx, uint32_t data) {
+    FIFOx -> FWD = data;
+}
+
+uint32_t FIFO_READ(FIFO_TypeDef *FIFOx) {
+    return FIFOx -> FRD;
 }
