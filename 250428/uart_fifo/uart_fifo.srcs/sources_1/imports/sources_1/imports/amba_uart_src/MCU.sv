@@ -5,6 +5,7 @@ module MCU (
     input logic reset,
 
     inout logic [7:0] GPIOA_INOUTPORT, GPIOB_INOUTPORT,  GPIOC_INOUTPORT, GPIOD_INOUTPORT,
+    inout logic dht_io,
     output logic [3:0] fndcomm,
     output logic [7:0] fndfont // 밖으로 나가는 port 
     // output logic [7:0] GPIO_OUTPORT
@@ -206,23 +207,40 @@ ABP_interface_GPIO u_GPIOD_INTF (
     );
 
 
-ABP_interface_timer u_timer(
+// ABP_interface_timer u_timer(
+//     .PCLK(clk),
+//     .PRESET(reset),
+
+//     .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
+//     .PWDATA(PWDATA),
+//     .PWRITE(PWRITE),
+//     .PENABLE(PENABLE),
+//     .PSEL(PSEL7),
+
+//     .PRDATA(PRDATA7),
+//     .PREADY(PREADY7)
+
+
+
+//     // output logic [7:0] outPort
+// );
+
+ APB_interface_dht11 u_dht11(
     .PCLK(clk),
     .PRESET(reset),
-
-    .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
+    .PADDR(PADDR),  
     .PWDATA(PWDATA),
     .PWRITE(PWRITE),
     .PENABLE(PENABLE),
     .PSEL(PSEL7),
 
     .PRDATA(PRDATA7),
-    .PREADY(PREADY7)
+    .PREADY(PREADY7),
 
+    .dht_io(dht_io)
+    
+    );
 
-
-    // output logic [7:0] outPort
-);
 
 //   ABP_Slave u_slave(//이제 cpu 말고 bus랑 놀아야됨 
 //     .PCLK(clk),

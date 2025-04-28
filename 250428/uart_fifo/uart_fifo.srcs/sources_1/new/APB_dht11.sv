@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 2025/04/27 17:51:54
+// Create Date: 2025/04/28 17:28:55
 // Design Name: 
-// Module Name: APB_interface_fifo
+// Module Name: APB_dht11
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -19,8 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-module APB_interface_fifo(
+module APB_interface_dht11(
     input logic PCLK,
     input logic PRESET,
 
@@ -31,27 +30,38 @@ module APB_interface_fifo(
     input logic PSEL, // setup // 이때 이미 rdata는 나가있음 write data도 다 들어옴 
 
     output logic [31:0 ]PRDATA,
-    output logic PREADY
+    output logic PREADY,
+
+    inout logic dht_io
     
     );
 
-    logic [31:0] slv_reg0; // empty / full // 2bit 1st full 2nd empty
-    logic [31:0] slv_reg1; // wdata
-    logic [31:0] slv_reg2; // rdata 
+    logic [31:0] slv_reg0; // start_trigger
+    logic [31:0] slv_reg1; // data //read만 
+    logic [31:0] slv_reg2; // is_done, checksum //read 
     logic c_ready, n_ready;
     logic full,empty;
     logic [7:0] rData;
+    logic [39:0] data_out;
+
+    logic is_done;
+    logic checksum;
+    logic start_trigger;
+
+
+  // check sum 제외 
 
     assign PREADY = n_ready; // n쓰면 한클럭 지연 사라짐 ff처럼 지연안함 
-    assign slv_reg0 = {{30{1'b0}},full,empty};
-    assign slv_reg2 = {{24{1'b0}},rData}; // 비트수 맞추기 
+    assign slv_reg0 = {{31{1'b0}},start_trigger};
+    assign slv_reg1 = data_out[31:0];
+    assign slv_reg2 = {{30{1'b0}},is_done,checksum}; // 비트수 맞추기 
 
     assign rd_en = (((PSEL & PENABLE)&~PWRITE) && (PADDR == 4'h8)) ? 1'b1 : 0; // slv2에서만 반응하게
     
     always_ff@(posedge PCLK, posedge PRESET) begin
         if(PRESET) begin
-        // slv_reg0 <= 0;
-        slv_reg1 <= 0;
+        slv_reg0 <= 0;
+        // slv_reg1 <= 0;
         // slv_reg2 <= 0; // read용은 초기화 ㄴㄴ 
         PRDATA <= 0;
         c_ready <= 0;
@@ -61,8 +71,8 @@ module APB_interface_fifo(
             if(PSEL) begin // 여기 하고싶을 때만 활성화 
                 if(PWRITE) begin //set up 때 저장 
                     case(PADDR)
-                    // 4'h0: slv_reg0 <= PWDATA; //ff라서 access때 저장됨 write 하면 안됨 
-                    4'h4: slv_reg1 <= PWDATA;
+                    4'h0: slv_reg0 <= PWDATA; //ff라서 access때 저장됨 write 하면 안됨 
+                    // 4'h4: slv_reg1 <= PWDATA;
                     // 4'h8: slv_reg2 <= PWDATA; // 이미 assign 해놨는데 갑자기 PWRITE 끼얹으면 error 
                     endcase
                 end  // tick 
@@ -84,18 +94,31 @@ module APB_interface_fifo(
         end
     end
     //access 단계에서 master에서 정보를 취합함 이때 내보내야함 rdata, wdata를 
-    fifo u_fifo(
-    .clk(PCLK),
-    .reset(PRESET),
-    .rData(rData),
-    .wData(slv_reg1[7:0]), 
-    .wr_en((PSEL&PENABLE)&PWRITE), //access때 발생 //한틱일듯> 
-    .rd_en(rd_en),//access때 원하는 rdata값 나가고 IDLE일때 ptr 1 올름   // @@@  실수하면 slv0 읽을 떄도 반응하네 시팔 
-    .full(full),
-    .empty(empty)
-    );
+    top_dht11  (
+    .clk(clk),
+    .reset(reset),
+    .start_trigger(start_trigger),
+    // input [2:0] sw_mode,
+
+    .dht_io(dht_io),
+
+    // output [2:0] led_state,
+    .led(),
+    .fsm_state(),
+    .data_out(data_out),
+    .is_done(is_done),
+    .checksum(checksum)
+    // output [39:0] dht11_data, 비트스트림위해해
+
+    // The 8bit humidity integer data + 8bit the Humidity decimal data +8 bit temperature integer data +
+// 8bit fractional temperature data +8 bit parity bit
+
+
+);
 
 
     //fifo read 에서는 바로 다음 ptr로 옮기기 때문에 slv_reg0가 다음껄 가리킴  
 
 endmodule
+
+

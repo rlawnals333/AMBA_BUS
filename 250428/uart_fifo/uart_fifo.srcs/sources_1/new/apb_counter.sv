@@ -54,7 +54,7 @@ module ABP_interface_timer(
             slv_reg0 <= 0;
             // slv_reg1 <= 0; // assign해서 input으로 받게 만들고선 초기화하면 안됨 
             slv_reg2 <= 0;
-            // slv_reg3 <= 0;
+            slv_reg3 <= 0;
             PRDATA <= 0;
             // PREADY <= 0;
             c_ready <= 0;
@@ -91,7 +91,7 @@ module ABP_interface_timer(
 
 
 
-timer_apb(
+timer_apb counter(
     .clk(PCLK),
     .reset(PRESET),
     .enable(slv_reg0[0]),
