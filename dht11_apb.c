@@ -98,8 +98,10 @@ uint32_t read_DONE(DHT_TypeDef *DHTx);
 uint32_t read_CHK(DHT_TypeDef *DHTx);
 
 
-void TIM_init(TIM_TypeDef * TIMx);
+void TIM_init_1us(TIM_TypeDef * TIMx);
 void delay(int n);
+
+uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx);
 //0.1초 10**7
 
 int main()
@@ -110,8 +112,8 @@ int main()
     Switch_init(GPIOA);
     // uint32_t count;
     // uint32_t fifo_read;
-    LED_init(GPIOC);
-    uint32_t temp_switch;
+    // LED_init(GPIOC);
+    // uint32_t temp_switch;
     // uint32_t one = 1;
     // FND_COMM(FND,0x00f);
     // FND_DOT(FND,1<<0);
@@ -126,13 +128,17 @@ int main()
         // TIM_writeArr(TIM,100);
         // TIM_start(TIM);
 
-        temp_switch = power_led(GPIOC,GPIOA); //초기상태
+        // temp_switch = power_led(GPIOC,GPIOA); //초기상태
         // uint32_t current_time;
         // TIM_writePsc(TIM,100); //1us
         // TIM_writeArr(TIM,10000);
-      
+      uint32_t dht_odata;
+      uint32_t dht_RH_Int;
+      uint32_t dht_RH_Dec;
+      uint32_t dht_T_Int;
+      uint32_t dht_T_Dec;
 
-
+    TIM_init_1us(TIM);
 
 
 
@@ -143,12 +149,61 @@ int main()
    
 
         // temp_switch = Switch_read(GPIOA);
+    
 
-             
-             if(temp_switch== (1<<0)) {temp_switch = btn1_led(GPIOC,GPIOA);}
-        else if(temp_switch== (1<<1)) {temp_switch = btn2_led(GPIOC,GPIOA);}
-        else if(temp_switch== (1<<2)) {temp_switch = btn3_led(GPIOC,GPIOA);}
-        else if(temp_switch== (1<<3)) {temp_switch = btn4_led(GPIOC,GPIOA);}
+            
+
+      //습도
+            
+            
+          
+           
+
+           
+        
+        if((Switch_read(GPIOA) & (1<<2)) == (1 << 2)) {
+                FND_ENABLE(FND);
+        }        else {
+                FND_DISABLE(FND);
+        }  
+
+        if((Switch_read(GPIOA)&(1<<0)) == (1<<0)) { //모드
+            if(Switch_read(GPIOB) == 1) {//런런
+            dht_odata = DHT11_run(DHT,TIM); //습도
+            dht_RH_Int = dht_odata >> 24;
+            dht_RH_Dec = (dht_odata >> 16) & (0xff);
+            // for (int i=0; i<100;i++) {
+            //     dht_RH_Int += dht_RH_Int;
+            // } // 곱하기 100
+
+            FND_FONT(FND,dht_RH_Int);
+            FND_DOT(FND,1<<2);
+            // tx에 보내기 함수
+            }
+        }
+
+        else if((Switch_read(GPIOA)&(1<<1)) == (1<<1)) { //모드드
+            if(Switch_read(GPIOB) == 1) {//런
+            dht_odata = DHT11_run(DHT,TIM); //온온도
+            dht_T_Int = (dht_odata) & (0xff << 8);
+            dht_T_Dec = (dht_odata) & (0xff);
+            // for (int i=0; i<100;i++) {
+            //     dht_T_Int += dht_T_Int;
+            // } // 곱하기 100
+
+            FND_FONT(FND, dht_T_Int );
+            FND_DOT(FND,1<<2);
+        }
+            // tx에 보내기 함수
+        }
+
+
+
+
+        //      if(temp_switch== (1<<0)) {temp_switch = btn1_led(GPIOC,GPIOA);}
+        // else if(temp_switch== (1<<1)) {temp_switch = btn2_led(GPIOC,GPIOA);}
+        // else if(temp_switch== (1<<2)) {temp_switch = btn3_led(GPIOC,GPIOA);}
+        // else if(temp_switch== (1<<3)) {temp_switch = btn4_led(GPIOC,GPIOA);}
         // else temp_switch = power_led(GPIOC,GPIOA);
 
         // if(FIFO_isFE(FIFO) != (1<<1)) {
@@ -162,11 +217,7 @@ int main()
 
         //   if(count == 9999) { count = 0;}
 
-//           if(Switch_read(GPIOA) == 1) {
-//          FND_ENABLE(FND);
-//  }        else {
-//          FND_DISABLE(FND);
-//  }    
+
 
         // for(int i =0;i<2000; i++) {
         //     current_time = TIM_readCounter(TIM);
@@ -383,8 +434,9 @@ void TIM_writeArr(TIM_TypeDef *TIMx,uint32_t data){
 
 
 //DHT11
-void DHT_start(DHT_TypeDef * DHTx){
+void DHT_start(DHT_TypeDef * DHTx){ //한번번
     DHTx -> STR = (1 << 0);
+    DHTx -> STR = (0 << 0);
 }
 void DHT_stop(DHT_TypeDef * DHTx){
     DHTx -> STR = (0 << 0);
@@ -396,13 +448,24 @@ uint32_t read_DONE(DHT_TypeDef *DHTx){
     return ((DHT -> DCR) >> 1);
 }
 uint32_t read_CHK(DHT_TypeDef *DHTx){
-     return ((DHT -> DCR) &=~(1 << 1));
+     return ((DHT -> DCR) & ~(1 << 1));
 }
 
-void TIM_init(TIM_TypeDef *TIMx){
-        TIM_clear(TIM);
-        TIM_start(TIM);
-}
+void TIM_init_1us(TIM_TypeDef *TIMx){
+      TIM_writePsc(TIMx,100);
+      TIM_writeArr(TIMx,100000);
+} // 1us 정하기 
+
+uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx){
+    // if(read_DONE(DHTx) == 1) {
+        DHT_start(DHTx);
+        delay_time(TIMx,10000); //10ms 대기
+        if(read_CHK(DHTx) == 1) {
+            return read_DHT(DHTx);
+        }
+        else return 123456789;
+  }
+// }
 
 void delay(int n){
     uint32_t temp;
