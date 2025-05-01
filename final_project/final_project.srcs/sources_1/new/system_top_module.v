@@ -49,6 +49,7 @@ module system_top_module (
     
     //온습도 led 모드
     output [4:0] led,
+    output [3:0] fsm_state,
 
     //display
     output [3:0] fnd_comm,
@@ -193,7 +194,7 @@ top_dht11 u_dht11 (
 
     // output [2:0] led_state,
     .led(),
-    .fsm_state(),
+    .fsm_state(fsm_state),
     .data_out(dht_data),
     .is_done(dht_done),
     .checksum(checksum)
