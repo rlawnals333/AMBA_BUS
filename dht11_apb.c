@@ -40,10 +40,17 @@ typedef struct{
     __IO uint32_t DCR; //is_done/checksum
 } DHT_TypeDef;
 
+typedef struct{
+    __IO uint32_t STR; //start_trigger
+    __IO uint32_t DOR; //dataout
+    
+} SR_TypeDef;
+
 
 #define APB_BASEADDR 0x10000000 //0
 #define GPIOA_BASEADDR (APB_BASEADDR + 0x1000)//1
-#define GPIOB_BASEADDR (APB_BASEADDR + 0x2000)//2
+// #define GPIOB_BASEADDR (APB_BASEADDR + 0x2000)//2
+#define SR_BASEADDR (APB_BASEADDR + 0x2000)//2
 #define UART_RX_BASEADDR (APB_BASEADDR + 0x3000)//3
 // #define GPIOD_BASEADDR (APB_BASEADDR + 0x4000)//4
 #define DHT_BASEADDR (APB_BASEADDR + 0x4000) //psel4
@@ -53,7 +60,8 @@ typedef struct{
 
 
 #define GPIOA ((GPIO_TypeDef *) GPIOA_BASEADDR)
-#define GPIOB ((GPIO_TypeDef *) GPIOB_BASEADDR)
+// #define GPIOB ((GPIO_TypeDef *) GPIOB_BASEADDR)
+#define SR ((SR_TypeDef *) SR_BASEADDR)
 #define UART_RX ((UART_RX_TypeDef *) UART_RX_BASEADDR)
 // #define GPIOD ((GPIO_TypeDef *) GPIOD_BASEADDR)
 #define DHT ((DHT_TypeDef *) DHT_BASEADDR)
@@ -107,137 +115,74 @@ void DHT_stop(DHT_TypeDef * DHTx);
 uint32_t read_DHT(DHT_TypeDef * DHTx);
 uint32_t read_CHK(DHT_TypeDef *DHTx);
 
+void SR_start(SR_TypeDef * SRx, TIM_TypeDef* TIMx);//한번번
+uint32_t read_SR(SR_TypeDef * SRx);
+uint32_t SR04_run(SR_TypeDef * SRx,TIM_TypeDef *TIMx);
 
-void TIM_init_1us(TIM_TypeDef * TIMx);
-void delay(int n);
+
+void TIM_init_1us(TIM_TypeDef *TIMx, uint32_t psc, uint32_t arr);
+
 
 uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx);
 //0.1초 10**7
 
+void UART_send(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx,char data);
+void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX);
+void SR04_operation(SR_TypeDef* SRx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX);
+void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en);
+
 int main()
 {
 
-
+    // uint32_t time_B_toggle;
     Switch_init(GPIOA);
-    Switch_init(GPIOB);
-
-      uint32_t dht_odata;
-      uint32_t dht_Int;
-      uint32_t dht_Dec;
-      uint32_t time_B_toggle;
-      uint8_t temp_dht;
-
-      uint32_t temp_dht_T_Int;
-      uint32_t temp_dht_RH_Int;
-
-      uint32_t tx_data;
-      uint8_t tens;
-      uint8_t ones;
-
-      uint8_t ze;
-      uint8_t ei;
-      uint8_t si;
-      uint8_t tw;
-
-    TIM_init_1us(TIM);
+    
+    TIM_init_1us(TIM,100,10000000); // 1us/ 10초 카운트
     TIM_clear(TIM);
-    time_B_toggle = 1;
+    // Switch_init(GPIOB);
+
+    // timer 버튼 뗄뗴 동작작
+    // time_B_toggle = 1;
    
-    uint8_t *shift_num[4] = {&ze,&ei,&si,&tw}; // 컴파일러때매 어쩔수 없ㄷ음음
-    uint8_t *ascii_num[2] = {&tens,&ones}; // 온습도 보낼때 8비트씩 보내려고 저장 
-    ze = 0;
-    ei = 8;
-    si = 16;
-    tw = 24;
+   // 컴파일러때매 어쩔수 없ㄷ음음
+    // uint32_t *ascii_num[2] = {&tens,&ones};
+     // 온습도 보낼때 8비트씩 보내려고 저장  //공간을 만들때는 ram 활용
+    // ram / rom / 나누기 4를 하고 주소값을 들어가기 때문에 무조건 4byte 단위로 공간 생성 즉 메모리공간생성 시에는 32비트로 
+    //걍 불러올때는 word / byte / half 형식에 따라 상관없음  
+
 
      while(1)
     {      
-        
-        if((Switch_read(GPIOA) & (1<<0)) == (1 << 0)) {
-                FND_ENABLE(FND);
-        }        else {
-                FND_DISABLE(FND);
-        }  
-
+        FND_control(FND,GPIOA,(1<<0));
+       
        
     //     if(Switch_read(GPIOB) == 1) {delay_time(TIM,100);  time_B_toggle = TIM_readCounter(TIM); }  // 버튼 누를때 시간 카운트 / toggle값이 0이 안되게 딜레이 
     //         //이타이밍에 떼야됨 
     //         if((Switch_read(GPIOB) ==0) && (TIM_readCounter(TIM) > time_B_toggle) ) {  //10초안에 눌러야함    // 버튼 누른시간보다 뒤에 꺼지면 실행행
-    //             dht_odata = DHT11_run(DHT,TIM); //습도
-    //             dht_RH_Int = (dht_odata >> 24) & 0xFF;
-    //             dht_RH_Dec = (dht_odata >> 16) & 0xFF;
-    //             dht_T_Int = (dht_odata  >> 8) & 0xFF;
-    //             dht_T_Dec = dht_odata & 0xFF;
-    //             temp_dht_RH_Int = dht_RH_Int;
-    //             temp_dht_T_Int = dht_T_Int;
-                
-    //             for (int i=0; i<100;i++) {
-    //                 dht_RH_Int += temp_dht_RH_Int;
-    //                 dht_T_Int += temp_dht_T_Int;
-    //             } // 곱하기 100
-               
+    //            
     //             TIM_clear(TIM); // 안눌렀을때 실행 안되게 초기화 
             
     //     }
 
-    //     if((Switch_read(GPIOA)&(1<<0)) == (1<<0)) { //습습도
-    //         FND_FONT(FND,dht_odata);
-    //         FND_DOT(FND,1<<2);
-    //         // tx에 보내기 함수
-    //         }
-    //     else if((Switch_read(GPIOA)&(1<<1)) == (1<<1)) { //온도도
-    //         FND_FONT(FND, dht_T_Int+dht_T_Dec);
-    //         FND_DOT(FND,1<<2);
-    //         }
-    // }
-    if(RX_isFE(UART_RX) != 1) {
-        if(RX_READ(UART_RX) == 's') { //계속 read_en 신호 나감 1번만 나가게 버튼 사용  // 배열로 미리 넘길 수 저장 
-            dht_odata = DHT11_run(DHT,TIM);
-            for (int i =0; i<4; i++) {
-                temp_dht = (dht_odata >> *shift_num[3-i]) & 0xFF;
-                tens = 0;
-                ones = 0; // 매번 초기화 
-                while(temp_dht >= 10) { //10의자리 1의자리 뽑아내기 */%못써서 이거씀 
-                        temp_dht -= 10;
-                        tens ++;
-                }
-                    ones = temp_dht;
-                    
-                    for(int j=0; j<2; j++) {
-                        if(TX_isFE(UART_TX)!=(1 << 1) ){
-                        TX_WRITE(UART_TX, (*ascii_num[j]) + '0');
-                        tx_data = TX_READ(UART_TX);
-                        TX_start(UART_TX,TIM);
-                        FND_FONT(FND,tx_data & 0xFF);
-                        delay_time(TIM,300000);
-                         }
-                    }
-                    if((i ==0) || (i == 2)) {
-                        if(TX_isFE(UART_TX)!=(1 << 1) ){
-                            TX_WRITE(UART_TX, '.');
-                            tx_data = TX_READ(UART_TX);
-                            TX_start(UART_TX,TIM);
-                            FND_FONT(FND,tx_data & 0xFF);
-                            delay_time(TIM,300000);
-                        }
-                    }
-                    else if((i ==1) || (i == 3)) {
-                        if(TX_isFE(UART_TX)!=(1 << 1) ){
-                            TX_WRITE(UART_TX, ' ');
-                            tx_data = TX_READ(UART_TX);
-                            TX_start(UART_TX,TIM);
-                            FND_FONT(FND,tx_data & 0xFF);
-                            delay_time(TIM,300000);
-                        }
-                    }
-        
-                 }
+     //  온습도 
+        if(RX_READ(UART_RX) == 'D') {
+             while(1){
+             DHT11_operation(DHT,UART_TX,TIM,UART_RX);
+             SR04_operation(SR,UART_TX,TIM,UART_RX);
+             delay_time(TIM,5000000);
+             if(RX_READ(UART_RX) == 'S') break;
+             }
             }
-         }   
-    }   
+             //계속 read_en 신호 나감 1번만 나가게 버튼 사용  // 배열로 미리 넘길 수 저장 
+    }  
 return 0;
 }
+
+
+
+
 //10000000 -> 0.1초 틱 
+
 void delay_time(TIM_TypeDef *TIMx, uint32_t limit_time)
 {   
             TIM_clear(TIMx);
@@ -288,14 +233,22 @@ void FND_DOT(FND_TypeDef *FNDx, uint32_t data) {
     FNDx ->FPR = data;
 }
 
+void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en) {
+    if((Switch_read(GPIOx) & en) == en) {
+        FND_ENABLE(FNDx);
+}        else {
+        FND_DISABLE(FNDx);
+}  
+
+}
 uint32_t TX_isFE(UART_TX_TypeDef * TX) {
     return TX -> FFE;
 }
 uint32_t RX_isFE(UART_RX_TypeDef * RX) {
     return RX -> FFE;
 }
-void TX_WRITE(UART_TX_TypeDef *TX, char data) {
-    TX -> FWD = (uint32_t)(data&0xFF);
+void TX_WRITE(UART_TX_TypeDef *TX,  char data) {
+    TX -> FWD = (uint32_t)data;
 }
 
 uint32_t TX_READ(UART_TX_TypeDef *TX) {
@@ -303,14 +256,30 @@ uint32_t TX_READ(UART_TX_TypeDef *TX) {
 }
 
 char RX_READ(UART_RX_TypeDef *RX) {
-
-    return (char)((RX -> FRD) & 0xFF);}
+    if(RX_isFE(RX) != 1) {
+    return (char)((RX -> FRD) & 0xFF);} // empty  아닐때만 read함 
+    else {
+    return  0;
+    }
+}
 
 void TX_start(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx) {
     TX -> STR = (1<<0);
     delay_time(TIMx,10);
     TX -> STR = 0;
 }
+
+void UART_send(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx,char data){
+    uint32_t tx_data;
+    if(TX_isFE(TX)!=(1 << 1) ){
+        TX_WRITE(TX, data);
+        tx_data = TX_READ(TX);
+        TX_start(TX,TIMx);
+         //FND_DOT(FND,0x1111); // RH T  나오게? 
+        delay_time(TIMx,30000);
+         }
+}
+
 void TIM_start(TIM_TypeDef *TIMx){
     TIMx ->TCR =  (1<<0);
     // TIMx ->TCR &=  ~(1<<1);
@@ -350,9 +319,9 @@ uint32_t read_CHK(DHT_TypeDef *DHTx){
      return DHTx -> DCR;
 }
 
-void TIM_init_1us(TIM_TypeDef *TIMx){
-      TIM_writePsc(TIMx,100); //1us 틱 
-      TIM_writeArr(TIMx,10000000); //10초까지 샘
+void TIM_init_1us(TIM_TypeDef *TIMx, uint32_t psc, uint32_t arr){
+      TIM_writePsc(TIMx,psc); //1us 틱 
+      TIM_writeArr(TIMx,arr); //10초까지 샘
 } // 1us 정하기 
 
 uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx){
@@ -365,12 +334,129 @@ uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx){
         // else return 1;
   }
 // }
-
-void delay(int n){
-    uint32_t temp;
-    for(int j=0;j<500;j++) {
-        for(int k=0;k < n; k++){
-                temp++;
-        }
-    }
+void SR_start(SR_TypeDef * SRx, TIM_TypeDef* TIMx){ //한번번
+    SRx -> STR = (1 << 0);
+    delay_time(TIMx,10);
+    SRx -> STR = (0 << 0);
 }
+
+uint32_t read_SR(SR_TypeDef * SRx){
+    return SRx -> DOR;
+}
+
+uint32_t SR04_run(SR_TypeDef * SRx,TIM_TypeDef *TIMx){
+    // if(read_DONE(DHTx) == 1) {
+        SR_start(SRx,TIMx);
+        delay_time(TIMx,300000); //300ms 대기 // dht11 측정끝날때 까지 대기 
+        // if(read_CHK(DHTx) == 1) {
+        return read_SR(SRx);
+        // }
+        // else return 1;
+  }
+
+
+void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX){
+    uint32_t ze;
+    uint32_t ei;
+    uint32_t si;
+    uint32_t tw;
+    uint32_t dht_odata;
+    uint32_t temp_dht;
+    uint32_t dht_tens; // 주소값 4 바이트 
+    uint32_t dht_ones;
+    uint32_t *shift_num[4] = {&tw,&si,&ei,&ze}; 
+
+    ze = 0;
+    ei = 8;
+    si = 16;
+    tw = 24;
+
+    dht_odata = DHT11_run(DHTx,TIMx);
+            for (int i =0; i<4; i++) {
+                temp_dht = (dht_odata >> *(shift_num[i])) & 0xFF; //shift가 왜 2번만? 
+                dht_tens = 0;
+                dht_ones = 0; // 매번 초기화 
+                while(temp_dht >= 10) { //10의자리 1의자리 뽑아내기 */%못써서 이거씀 
+                        temp_dht -= 10;
+                        dht_tens ++;
+                }
+                    dht_ones = temp_dht;
+                switch (i)
+                {
+                case 0:
+                    UART_send(TX,TIMx,'R');
+                    UART_send(TX,TIMx,'H');
+                    UART_send(TX,TIMx,':');
+                    UART_send(TX,TIMx,(char)(dht_tens+'0'));
+                    UART_send(TX,TIMx,(char)(dht_ones+'0'));
+                    UART_send(TX,TIMx,'.');
+                    break;
+                case 1:
+                    UART_send(TX,TIMx,(char)dht_tens + '0');
+                    UART_send(TX,TIMx,(char)dht_ones + '0');
+                    UART_send(TX,TIMx,'%');
+                    UART_send(TX,TIMx,' ');
+                    break;
+                
+                case 2:
+                    UART_send(TX,TIMx,'T');
+                    UART_send(TX,TIMx,':');
+                    UART_send(TX,TIMx,(char)(dht_tens+'0'));
+                    UART_send(TX,TIMx,(char)(dht_ones+'0'));
+                    UART_send(TX,TIMx,'.');
+                    break;
+                
+                case 3:
+                    UART_send(TX,TIMx,(char)dht_tens + '0');
+                    UART_send(TX,TIMx,(char)dht_ones + '0');
+                    UART_send(TX,TIMx,'C');
+                    UART_send(TX,TIMx,'\n');
+                    break;
+
+                }
+               
+            }  
+           
+}
+
+void SR04_operation(SR_TypeDef* SRx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX){
+
+    uint32_t sr_odata;
+    uint32_t SR_huns;
+    uint32_t SR_tens;
+    uint32_t SR_ones;
+
+    sr_odata = SR04_run(SRx,TIMx);
+    SR_huns = 0;
+    SR_tens = 0;
+    SR_ones = 0; // 매번 초기화 
+    
+    while(sr_odata >= 100) { //10의자리 1의자리 뽑아내기 */%못써서 이거씀 
+        sr_odata -= 100;
+        SR_huns ++;
+            }
+    
+    while(sr_odata >= 10) { //10의자리 1의자리 뽑아내기 */%못써서 이거씀 
+        sr_odata -= 10;
+        SR_tens ++;
+             }
+        SR_ones = sr_odata;
+    UART_send(TX,TIMx,'D');
+    UART_send(TX,TIMx,'I');
+    UART_send(TX,TIMx,'S');
+    UART_send(TX,TIMx,'T');
+    UART_send(TX,TIMx,'A');
+    UART_send(TX,TIMx,'N');
+    UART_send(TX,TIMx,'C');
+    UART_send(TX,TIMx,'E');
+    UART_send(TX,TIMx,':');
+    UART_send(TX,TIMx,(char)(SR_huns+'0'));
+    UART_send(TX,TIMx,(char)(SR_tens+'0'));
+    UART_send(TX,TIMx,(char)(SR_ones+'0'));
+    UART_send(TX,TIMx,'c');
+    UART_send(TX,TIMx,'m');
+    UART_send(TX,TIMx,'\n');
+                           
+        }
+
+    
