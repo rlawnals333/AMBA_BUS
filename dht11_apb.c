@@ -14,18 +14,19 @@ typedef struct{
 } FND_TypeDef;
 
 typedef struct{
-    __IO uint32_t FFE; //fifo full/ empty
+    __IO uint32_t FFE; //fifo full_tx/ empty_rx / full_rx/ empty_rx
     __IO uint32_t FWD; //fifo write data // tx_in 
-    __IO uint32_t FRD; //fifo read data 
+    __IO uint32_t FRT; // tx read data
+    __IO uint32_t FRR; //fifo read data 
     __IO uint32_t STR; //start_trigger
-} UART_TX_TypeDef;
+} UART_TypeDef;
 
-typedef struct{
-    __IO uint32_t FFE; //fifo full/ empty
-    __IO uint32_t FWD; //fifo write data // 
-    __IO uint32_t FRD;
- //fifo read data // only read 
-} UART_RX_TypeDef;
+// typedef struct{
+//     __IO uint32_t FFE; //fifo full/ empty
+//     __IO uint32_t FWD; //fifo write data // 
+//     __IO uint32_t FRD;
+//  //fifo read data // only read 
+// } UART_RX_TypeDef;
 
 typedef struct{
     __IO uint32_t TCR; //msb 2bit clear/ enable
@@ -49,24 +50,24 @@ typedef struct{
 
 #define APB_BASEADDR 0x10000000 //0
 #define GPIOA_BASEADDR (APB_BASEADDR + 0x1000)//1
-// #define GPIOB_BASEADDR (APB_BASEADDR + 0x2000)//2
+#define GPIOB_BASEADDR (APB_BASEADDR + 0x3000)//2
 #define SR_BASEADDR (APB_BASEADDR + 0x2000)//2
-#define UART_RX_BASEADDR (APB_BASEADDR + 0x3000)//3
+// #define UART_RX_BASEADDR (APB_BASEADDR + 0x3000)//3
 // #define GPIOD_BASEADDR (APB_BASEADDR + 0x4000)//4
 #define DHT_BASEADDR (APB_BASEADDR + 0x4000) //psel4
 #define FND_BASEADDR (APB_BASEADDR + 0x5000) //psel5
-#define UART_TX_BASEADDR (APB_BASEADDR + 0x6000) //psel6
+#define UART_BASEADDR (APB_BASEADDR + 0x6000) //psel6
 #define TIM_BASEADDR (APB_BASEADDR + 0x7000) //psel6
 
 
 #define GPIOA ((GPIO_TypeDef *) GPIOA_BASEADDR)
 // #define GPIOB ((GPIO_TypeDef *) GPIOB_BASEADDR)
 #define SR ((SR_TypeDef *) SR_BASEADDR)
-#define UART_RX ((UART_RX_TypeDef *) UART_RX_BASEADDR)
+// #define UART_RX ((UART_RX_TypeDef *) UART_RX_BASEADDR)
 // #define GPIOD ((GPIO_TypeDef *) GPIOD_BASEADDR)
 #define DHT ((DHT_TypeDef *) DHT_BASEADDR)
 #define FND ((FND_TypeDef *) FND_BASEADDR)
-#define UART_TX ((UART_TX_TypeDef *) UART_TX_BASEADDR)
+#define UART ((UART_TypeDef *) UART_BASEADDR)
 
 #define TIM ((TIM_TypeDef *) TIM_BASEADDR)
 
@@ -88,12 +89,12 @@ void FND_COMM(FND_TypeDef *FNDx, uint32_t data);
 void FND_FONT(FND_TypeDef *FNDx, uint32_t data);
 void FND_DOT(FND_TypeDef *FNDx, uint32_t data);
 
-uint32_t TX_isFE(UART_TX_TypeDef * TX);
-uint32_t RX_isFE(UART_RX_TypeDef * RX);
-void TX_WRITE(UART_TX_TypeDef *TX, char data);
-uint32_t TX_READ(UART_TX_TypeDef *TX);
-char RX_READ(UART_RX_TypeDef *RX);
-void TX_start(UART_TX_TypeDef* TX,TIM_TypeDef* TIMx);
+uint32_t TX_isFE(UART_TypeDef * UARTx);
+uint32_t RX_isFE(UART_TypeDef * UARTx);
+void TX_WRITE(UART_TypeDef * UARTx, char data);
+uint32_t TX_READ(UART_TypeDef * UARTx);
+char RX_READ(UART_TypeDef * UARTx);
+void TX_start(UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
 
 void TIM_start(TIM_TypeDef *TIMx);
 void TIM_stop(TIM_TypeDef *TIMx);
@@ -126,9 +127,9 @@ void TIM_init_1us(TIM_TypeDef *TIMx, uint32_t psc, uint32_t arr);
 uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx);
 //0.1초 10**7
 
-void UART_send(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx,char data);
-void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX);
-void SR04_operation(SR_TypeDef* SRx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX);
+void UART_send(UART_TypeDef * UARTx,TIM_TypeDef *TIMx,char data);
+void DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
+void SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
 void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en);
 
 int main()
@@ -165,12 +166,12 @@ int main()
     //     }
 
      //  온습도 
-        if(RX_READ(UART_RX) == 'D') {
+        if(RX_READ(UART) == 'D') {
              while(1){
-             DHT11_operation(DHT,UART_TX,TIM,UART_RX);
-             SR04_operation(SR,UART_TX,TIM,UART_RX);
+             DHT11_operation(DHT,UART,TIM);
+             SR04_operation(SR,UART,TIM);
              delay_time(TIM,5000000);
-             if(RX_READ(UART_RX) == 'S') break;
+             if(RX_READ(UART) == 'S') break;
              }
             }
              //계속 read_en 신호 나감 1번만 나가게 버튼 사용  // 배열로 미리 넘길 수 저장 
@@ -241,40 +242,40 @@ void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en) {
 }  
 
 }
-uint32_t TX_isFE(UART_TX_TypeDef * TX) {
-    return TX -> FFE;
+uint32_t TX_isFE(UART_TypeDef * UARTx) {
+    return (UARTx -> FFE) & (0x03 << 2);
 }
-uint32_t RX_isFE(UART_RX_TypeDef * RX) {
-    return RX -> FFE;
+uint32_t RX_isFE(UART_TypeDef * UARTx) {
+    return (UARTx -> FFE) & 0x03;
 }
-void TX_WRITE(UART_TX_TypeDef *TX,  char data) {
-    TX -> FWD = (uint32_t)data;
-}
-
-uint32_t TX_READ(UART_TX_TypeDef *TX) {
-    return TX -> FRD;
+void TX_WRITE(UART_TypeDef * UARTx,  char data) {
+    UARTx -> FWD = (uint32_t)data;
 }
 
-char RX_READ(UART_RX_TypeDef *RX) {
-    if(RX_isFE(RX) != 1) {
-    return (char)((RX -> FRD) & 0xFF);} // empty  아닐때만 read함 
+uint32_t TX_READ(UART_TypeDef * UARTx) {
+    return UARTx -> FRT;
+}
+
+char RX_READ(UART_TypeDef * UARTx) {
+    if(RX_isFE(UARTx) != 1) {
+    return (char)((UARTx -> FRR) & 0xFF);} // empty  아닐때만 read함 
     else {
     return  0;
     }
 }
 
-void TX_start(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx) {
-    TX -> STR = (1<<0);
+void TX_start(UART_TypeDef * UARTx,TIM_TypeDef *TIMx) {
+    UARTx -> STR = (1<<0);
     delay_time(TIMx,10);
-    TX -> STR = 0;
+    UARTx -> STR = 0;
 }
 
-void UART_send(UART_TX_TypeDef* TX,TIM_TypeDef *TIMx,char data){
+void UART_send(UART_TypeDef * UARTx,TIM_TypeDef *TIMx,char data){
     uint32_t tx_data;
-    if(TX_isFE(TX)!=(1 << 1) ){
-        TX_WRITE(TX, data);
-        tx_data = TX_READ(TX);
-        TX_start(TX,TIMx);
+    if(TX_isFE(UARTx)!=(1 << 1) ){
+        TX_WRITE(UARTx, data);
+        tx_data = TX_READ(UARTx);
+        TX_start(UARTx,TIMx);
          //FND_DOT(FND,0x1111); // RH T  나오게? 
         delay_time(TIMx,30000);
          }
@@ -355,7 +356,7 @@ uint32_t SR04_run(SR_TypeDef * SRx,TIM_TypeDef *TIMx){
   }
 
 
-void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX){
+void DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
     uint32_t ze;
     uint32_t ei;
     uint32_t si;
@@ -384,33 +385,33 @@ void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART
                 switch (i)
                 {
                 case 0:
-                    UART_send(TX,TIMx,'R');
-                    UART_send(TX,TIMx,'H');
-                    UART_send(TX,TIMx,':');
-                    UART_send(TX,TIMx,(char)(dht_tens+'0'));
-                    UART_send(TX,TIMx,(char)(dht_ones+'0'));
-                    UART_send(TX,TIMx,'.');
+                    UART_send(UARTx,TIMx,'R');
+                    UART_send(UARTx,TIMx,'H');
+                    UART_send(UARTx,TIMx,':');
+                    UART_send(UARTx,TIMx,(char)(dht_tens+'0'));
+                    UART_send(UARTx,TIMx,(char)(dht_ones+'0'));
+                    UART_send(UARTx,TIMx,'.');
                     break;
                 case 1:
-                    UART_send(TX,TIMx,(char)dht_tens + '0');
-                    UART_send(TX,TIMx,(char)dht_ones + '0');
-                    UART_send(TX,TIMx,'%');
-                    UART_send(TX,TIMx,' ');
+                    UART_send(UARTx,TIMx,(char)dht_tens + '0');
+                    UART_send(UARTx,TIMx,(char)dht_ones + '0');
+                    UART_send(UARTx,TIMx,'%');
+                    UART_send(UARTx,TIMx,' ');
                     break;
                 
                 case 2:
-                    UART_send(TX,TIMx,'T');
-                    UART_send(TX,TIMx,':');
-                    UART_send(TX,TIMx,(char)(dht_tens+'0'));
-                    UART_send(TX,TIMx,(char)(dht_ones+'0'));
-                    UART_send(TX,TIMx,'.');
+                    UART_send(UARTx,TIMx,'T');
+                    UART_send(UARTx,TIMx,':');
+                    UART_send(UARTx,TIMx,(char)(dht_tens+'0'));
+                    UART_send(UARTx,TIMx,(char)(dht_ones+'0'));
+                    UART_send(UARTx,TIMx,'.');
                     break;
                 
                 case 3:
-                    UART_send(TX,TIMx,(char)dht_tens + '0');
-                    UART_send(TX,TIMx,(char)dht_ones + '0');
-                    UART_send(TX,TIMx,'C');
-                    UART_send(TX,TIMx,'\n');
+                    UART_send(UARTx,TIMx,(char)dht_tens + '0');
+                    UART_send(UARTx,TIMx,(char)dht_ones + '0');
+                    UART_send(UARTx,TIMx,'C');
+                    UART_send(UARTx,TIMx,'\n');
                     break;
 
                 }
@@ -419,7 +420,7 @@ void DHT11_operation(DHT_TypeDef*DHTx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART
            
 }
 
-void SR04_operation(SR_TypeDef* SRx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_RX_TypeDef* RX){
+void SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
 
     uint32_t sr_odata;
     uint32_t SR_huns;
@@ -441,21 +442,21 @@ void SR04_operation(SR_TypeDef* SRx,UART_TX_TypeDef* TX,TIM_TypeDef* TIMx,UART_R
         SR_tens ++;
              }
         SR_ones = sr_odata;
-    UART_send(TX,TIMx,'D');
-    UART_send(TX,TIMx,'I');
-    UART_send(TX,TIMx,'S');
-    UART_send(TX,TIMx,'T');
-    UART_send(TX,TIMx,'A');
-    UART_send(TX,TIMx,'N');
-    UART_send(TX,TIMx,'C');
-    UART_send(TX,TIMx,'E');
-    UART_send(TX,TIMx,':');
-    UART_send(TX,TIMx,(char)(SR_huns+'0'));
-    UART_send(TX,TIMx,(char)(SR_tens+'0'));
-    UART_send(TX,TIMx,(char)(SR_ones+'0'));
-    UART_send(TX,TIMx,'c');
-    UART_send(TX,TIMx,'m');
-    UART_send(TX,TIMx,'\n');
+    UART_send(UARTx,TIMx,'D');
+    UART_send(UARTx,TIMx,'I');
+    UART_send(UARTx,TIMx,'S');
+    UART_send(UARTx,TIMx,'T');
+    UART_send(UARTx,TIMx,'A');
+    UART_send(UARTx,TIMx,'N');
+    UART_send(UARTx,TIMx,'C');
+    UART_send(UARTx,TIMx,'E');
+    UART_send(UARTx,TIMx,':');
+    UART_send(UARTx,TIMx,(char)(SR_huns+'0'));
+    UART_send(UARTx,TIMx,(char)(SR_tens+'0'));
+    UART_send(UARTx,TIMx,(char)(SR_ones+'0'));
+    UART_send(UARTx,TIMx,'c');
+    UART_send(UARTx,TIMx,'m');
+    UART_send(UARTx,TIMx,'\n');
                            
         }
 
