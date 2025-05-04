@@ -62,10 +62,10 @@ module fnd_ip #(parameter FCOUNT = 1000_00)(
     always_comb begin
         font = 0;
         if(FDR == 10000) begin //all
-           font =  (FMR == 4'b0001) ? 13 : (FMR == 4'b0010) ? 13 :(FMR == 4'b0100) ? 12 :(FMR == 4'b1000) ? 14 : 0;  //all
+           font =  (FMR == 4'b0001) ? 14 : (FMR == 4'b0010) ? 13 :(FMR == 4'b0100) ? 12  :(FMR == 4'b1000) ? 5 : 0;  //scan
         end
         else if(FDR == 20000) begin //error 
-            font =  (FMR == 4'b0001) ? 11 : (FMR == 4'b0010) ? 11 :(FMR == 4'b0100) ? 10 :(FMR == 4'b1000) ? 14  : 0;  //error
+            font =  (FMR == 4'b0001) ? 11 : (FMR == 4'b0010) ? 11 :(FMR == 4'b0100) ? 10 :(FMR == 4'b1000) ? 15  : 0;  //error
         end
         else begin
             font =  (FMR == 4'b0001) ? num_1 : (FMR == 4'b0010) ? num_10 :(FMR == 4'b0100) ? num_100 :(FMR == 4'b1000) ? num_1000 : 0; 
@@ -81,16 +81,18 @@ module fnd_ip #(parameter FCOUNT = 1000_00)(
         2: t_fndfont = 8'ha4;
         3: t_fndfont = 8'hb0;
         4: t_fndfont = 8'h99;
-        5: t_fndfont = 8'h92;
+        5: t_fndfont = 8'h92; //s
         6: t_fndfont = 8'h82;
         7: t_fndfont = 8'hf8;
         8: t_fndfont = 8'h80;
         9: t_fndfont = 8'h90;
         10:t_fndfont = 8'h86; //e
         11:t_fndfont = 8'hAF;  //r
-        12:t_fndfont = 8'h88; //a
-        13:t_fndfont = 8'hC7; //l
-        14:t_fndfont = 8'hFF; // 다꺼짐 
+        12:t_fndfont = 8'hc6; //c
+        13:t_fndfont = 8'h88; //a
+        14:t_fndfont = 8'hc8; //n
+        15:t_fndfont = 8'hff; //꺼짐 
+        // 15:t_fndfont = 8'hFF; // 꺼짐 
 
         endcase
         

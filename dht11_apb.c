@@ -135,7 +135,7 @@ void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en);
 int main()
 {
 
-    // uint32_t time_B_toggle;
+    uint32_t time_B_toggle;
     Switch_init(GPIOA);
     LED_init(GPIOB);
     
@@ -147,13 +147,14 @@ int main()
     uint32_t temp_RH_int;
     uint32_t temp_T_int;
     uint32_t sr04_data;
+    uint32_t save_state;
     
 
 
     // Switch_init(GPIOB);
 
     // timer 버튼 뗄뗴 동작작
-    // time_B_toggle = 1;
+    time_B_toggle = 1;
    
    // 컴파일러때매 어쩔수 없ㄷ음음
     // uint32_t *ascii_num[2] = {&tens,&ones};
@@ -167,18 +168,11 @@ int main()
         
         FND_control(FND,GPIOA,(1<<0));
         
-       
-    //     if(Switch_read(GPIOB) == 1) {delay_time(TIM,100);  time_B_toggle = TIM_readCounter(TIM); }  // 버튼 누를때 시간 카운트 / toggle값이 0이 안되게 딜레이 
-    //         //이타이밍에 떼야됨 
-    //         if((Switch_read(GPIOB) ==0) && (TIM_readCounter(TIM) > time_B_toggle) ) {  //10초안에 눌러야함    // 버튼 누른시간보다 뒤에 꺼지면 실행행
-    //            
-    //             TIM_clear(TIM); // 안눌렀을때 실행 안되게 초기화 
-            
-    //     }
+
 
      //  온습도
-        if(TIM_readCounter(TIM) >= 3000000) {
-        if(RX_READ(UART) != 'S') {
+       
+     
             //  while(1){
             // delay_time(TIM,3000000);
              dht11_data = DHT11_operation(DHT,UART,TIM);
@@ -187,33 +181,52 @@ int main()
              T_int = (dht11_data >> 8) & 0xFF;
              RH_dec = (dht11_data >> 16 ) & 0xFF ;
              T_dec = dht11_data & 0xFF;
-             temp_RH_int = RH_int;
-             temp_T_int = T_int ;
+            //  temp_RH_int = RH_int;
+            //  temp_T_int = T_int ;
 
             
-             for(int i=0; i<100; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
-             }
-             delay_time(TIM,1000000); // 신호 대기 
-            }
-           
-        else {
-             if(RX_READ(UART) == 'D') { 
+            //  for(int i=0; i<100; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
+        
+
+             LED_write(GPIOB,(1 << 5)+GPIOB -> ODR);
+             delay_time(TIM,2000000); // 신호 대기 
+             save_state = RX_READ(UART);
+             if((char)save_state == 'D') { 
                 if(sr04_data >= 400) {LED_write(GPIOB,1); FND_FONT(FND,20000);FND_DOT(FND,0);} // 400이상상
                 else if(sr04_data < 10) {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,(1 << 4) + 1);} // 10이하 경보보
                 else {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,1);}} // 평소
 
-            if(RX_READ(UART) == 'H') { 
-                if(temp_RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));} //40 이상
-                else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));}
+            else if((char)save_state == 'H') { 
+                if(temp_RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));} //40 이상
+                else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));}
                                             }
 
-             if(RX_READ(UART) == 'T') { 
-                if(temp_T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));} // 30도 이상상
-                else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));}
+             else if((char)save_state == 'T') { 
+                if(temp_T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));} // 30도 이상상
+                else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));}
              }
-             if(RX_READ(UART) == 'A') { {FND_FONT(FND,10000);FND_DOT(FND,0);LED_write(GPIOB,7); }}
-             if(RX_READ(UART) == 'S') {{FND_FONT(FND,0);FND_DOT(FND,0xf);LED_write(GPIOB,0); }}
-            }
+             
+             else if((char)save_state == 'S') {{FND_FONT(FND,0);FND_DOT(FND,0xf);LED_write(GPIOB,0); while(RX_READ(UART) != 'R'){} }}
+             else { {FND_FONT(FND,10000);FND_DOT(FND,0);LED_write(GPIOB,7); }}
+            
+             TIM_clear(TIM);
+             TIM_start(TIM);
+               
+            
+            LED_write(GPIOB,(1 << 5)+GPIOB -> ODR);
+
+        // if((Switch_read(GPIOA) & (1<<1) ) == (1<<1)) {delay_time(TIM,100);  time_B_toggle = TIM_readCounter(TIM); }  // 버튼 누를때 시간 카운트 / toggle값이 0이 안되게 딜레이 
+        //     //이타이밍에 떼야됨 
+        //     if((Switch_read(GPIOA) & (1<<1) == 0 ) && (TIM_readCounter(TIM) > time_B_toggle) ) {  //10초안에 눌러야함    // 버튼 누른시간보다 뒤에 꺼지면 실행행
+        //         if((GPIOB -> ODR)&(1 <<4) == (1 << 4)) {LED_write(GPIOB, (GPIOB -> ODR)&~(1<<4));}
+        //         TIM_clear(TIM); // 안눌렀을때 실행 안되게 초기화 
+            
+        // }
+  
+           
+       
+
+            
             //  else if(RX_READ(UART) == 'S') break;
             // delay_time(TIM,500000);
             // LED_write(GPIOB,0);
