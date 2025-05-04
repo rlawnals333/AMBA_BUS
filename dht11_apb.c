@@ -177,8 +177,8 @@ int main()
     //     }
 
      //  온습도
-        if(TIM_readCounter(TIM) >= 1000000) {
-        if(RX_READ(UART) == 'A') {
+        if(TIM_readCounter(TIM) >= 3000000) {
+        if(RX_READ(UART) != 'S') {
             //  while(1){
             // delay_time(TIM,3000000);
              dht11_data = DHT11_operation(DHT,UART,TIM);
@@ -189,33 +189,35 @@ int main()
              T_dec = dht11_data & 0xFF;
              temp_RH_int = RH_int;
              temp_T_int = T_int ;
-             FND_FONT(FND,10000);
-             FND_DOT(FND,0);
-             LED_write(GPIOB,7); 
+
             
              for(int i=0; i<100; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
              }
+             delay_time(TIM,1000000); // 신호 대기 
             }
-            
-
+           
+        else {
              if(RX_READ(UART) == 'D') { 
                 if(sr04_data >= 400) {LED_write(GPIOB,1); FND_FONT(FND,20000);FND_DOT(FND,0);} // 400이상상
                 else if(sr04_data < 10) {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,(1 << 4) + 1);} // 10이하 경보보
                 else {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,1);}} // 평소
 
-             else if(RX_READ(UART) == 'H') { 
+            if(RX_READ(UART) == 'H') { 
                 if(temp_RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));} //40 이상
                 else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));}
                                             }
 
-             else if(RX_READ(UART) == 'T') { 
+             if(RX_READ(UART) == 'T') { 
                 if(temp_T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));} // 30도 이상상
                 else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));}
              }
+             if(RX_READ(UART) == 'A') { {FND_FONT(FND,10000);FND_DOT(FND,0);LED_write(GPIOB,7); }}
+             if(RX_READ(UART) == 'S') {{FND_FONT(FND,0);FND_DOT(FND,0xf);LED_write(GPIOB,0); }}
+            }
             //  else if(RX_READ(UART) == 'S') break;
-            delay_time(TIM,1000000);
-            LED_write(GPIOB,0);
-            delay_time(TIM,1000000);
+            // delay_time(TIM,500000);
+            // LED_write(GPIOB,0);
+            // delay_time(TIM,500000);
              
             
              //계속 read_en 신호 나감 1번만 나가게 버튼 사용  // 배열로 미리 넘길 수 저장 
