@@ -61,7 +61,7 @@ typedef struct{
 
 
 #define GPIOA ((GPIO_TypeDef *) GPIOA_BASEADDR)
-// #define GPIOB ((GPIO_TypeDef *) GPIOB_BASEADDR)
+#define GPIOB ((GPIO_TypeDef *) GPIOB_BASEADDR)
 #define SR ((SR_TypeDef *) SR_BASEADDR)
 // #define UART_RX ((UART_RX_TypeDef *) UART_RX_BASEADDR)
 // #define GPIOD ((GPIO_TypeDef *) GPIOD_BASEADDR)
@@ -128,8 +128,8 @@ uint32_t DHT11_run(DHT_TypeDef * DHTx,TIM_TypeDef *TIMx);
 //0.1초 10**7
 
 void UART_send(UART_TypeDef * UARTx,TIM_TypeDef *TIMx,char data);
-void DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
-void SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
+uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
+uint32_t SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx);
 void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en);
 
 int main()
@@ -137,9 +137,19 @@ int main()
 
     // uint32_t time_B_toggle;
     Switch_init(GPIOA);
+    LED_init(GPIOB);
     
     TIM_init_1us(TIM,100,10000000); // 1us/ 10초 카운트
     TIM_clear(TIM);
+    TIM_start(TIM);
+    uint32_t dht11_data;
+    uint32_t RH_int, RH_dec, T_int, T_dec; 
+    uint32_t temp_RH_int;
+    uint32_t temp_T_int;
+    uint32_t sr04_data;
+    
+
+
     // Switch_init(GPIOB);
 
     // timer 버튼 뗄뗴 동작작
@@ -153,9 +163,10 @@ int main()
 
 
      while(1)
-    {      
+    {   
+        
         FND_control(FND,GPIOA,(1<<0));
-       
+        
        
     //     if(Switch_read(GPIOB) == 1) {delay_time(TIM,100);  time_B_toggle = TIM_readCounter(TIM); }  // 버튼 누를때 시간 카운트 / toggle값이 0이 안되게 딜레이 
     //         //이타이밍에 떼야됨 
@@ -165,15 +176,48 @@ int main()
             
     //     }
 
-     //  온습도 
-        if(RX_READ(UART) == 'D') {
-             while(1){
-             DHT11_operation(DHT,UART,TIM);
-             SR04_operation(SR,UART,TIM);
-             delay_time(TIM,5000000);
-             if(RX_READ(UART) == 'S') break;
+     //  온습도
+        if(TIM_readCounter(TIM) >= 1000000) {
+        if(RX_READ(UART) == 'A') {
+            //  while(1){
+            // delay_time(TIM,3000000);
+             dht11_data = DHT11_operation(DHT,UART,TIM);
+             sr04_data = SR04_operation(SR,UART,TIM);
+             RH_int = (dht11_data >> 24) & 0xFF;
+             T_int = (dht11_data >> 8) & 0xFF;
+             RH_dec = (dht11_data >> 16 ) & 0xFF ;
+             T_dec = dht11_data & 0xFF;
+             temp_RH_int = RH_int;
+             temp_T_int = T_int ;
+             FND_FONT(FND,10000);
+             FND_DOT(FND,0);
+             LED_write(GPIOB,7); 
+            
+             for(int i=0; i<100; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
              }
             }
+            
+
+             if(RX_READ(UART) == 'D') { 
+                if(sr04_data >= 400) {LED_write(GPIOB,1); FND_FONT(FND,20000);FND_DOT(FND,0);} // 400이상상
+                else if(sr04_data < 10) {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,(1 << 4) + 1);} // 10이하 경보보
+                else {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,1);}} // 평소
+
+             else if(RX_READ(UART) == 'H') { 
+                if(temp_RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));} //40 이상
+                else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int + RH_dec); FND_DOT(FND,(1<<2));}
+                                            }
+
+             else if(RX_READ(UART) == 'T') { 
+                if(temp_T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));} // 30도 이상상
+                else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int + T_dec);FND_DOT(FND,(1<<2));}
+             }
+            //  else if(RX_READ(UART) == 'S') break;
+            delay_time(TIM,1000000);
+            LED_write(GPIOB,0);
+            delay_time(TIM,1000000);
+             
+            
              //계속 read_en 신호 나감 1번만 나가게 버튼 사용  // 배열로 미리 넘길 수 저장 
     }  
 return 0;
@@ -356,7 +400,7 @@ uint32_t SR04_run(SR_TypeDef * SRx,TIM_TypeDef *TIMx){
   }
 
 
-void DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
+uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
     uint32_t ze;
     uint32_t ei;
     uint32_t si;
@@ -417,20 +461,23 @@ void DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
                 }
                
             }  
+            return dht_odata;
            
 }
 
-void SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
+uint32_t SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
 
     uint32_t sr_odata;
     uint32_t SR_huns;
     uint32_t SR_tens;
     uint32_t SR_ones;
+    uint32_t temp_result;
 
     sr_odata = SR04_run(SRx,TIMx);
     SR_huns = 0;
     SR_tens = 0;
     SR_ones = 0; // 매번 초기화 
+    temp_result = sr_odata;
     
     while(sr_odata >= 100) { //10의자리 1의자리 뽑아내기 */%못써서 이거씀 
         sr_odata -= 100;
@@ -457,6 +504,8 @@ void SR04_operation(SR_TypeDef* SRx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx){
     UART_send(UARTx,TIMx,'c');
     UART_send(UARTx,TIMx,'m');
     UART_send(UARTx,TIMx,'\n');
+
+    return temp_result;
                            
         }
 
