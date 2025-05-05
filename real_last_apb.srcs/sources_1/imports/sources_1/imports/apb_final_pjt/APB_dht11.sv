@@ -46,7 +46,7 @@ module APB_interface_dht11(
 
 
     logic checksum;
-    logic start_trigger;
+    // logic start_trigger;
 
 
   // check sum 제외 
@@ -56,7 +56,7 @@ module APB_interface_dht11(
     assign slv_reg1 = data_out[39:8];
     assign slv_reg2 = {{31{1'b0}},checksum}; // 비트수 맞추기 
 
-    assign trigger = slv_reg0[0];
+    // assign trigger = slv_reg0[0];
 
     // assign rd_en = (((PSEL & PENABLE)&~PWRITE) && (PADDR == 4'h8)) ? 1'b1 : 0; // slv2에서만 반응하게
     
