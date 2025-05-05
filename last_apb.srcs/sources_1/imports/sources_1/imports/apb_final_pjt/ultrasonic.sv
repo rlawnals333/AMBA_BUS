@@ -26,38 +26,38 @@ module us_control
 #(parameter TICK_COUNT = 400*58, TICK_BIT_SIZE = $clog2(TICK_COUNT), 
             DISTANCE_RANGE = 400, DIS_BIT_SIZE = ($clog2(DISTANCE_RANGE)) ) // 거리 cm 단위 
 (
-    input clk,
-    input reset,
-    input SR04_data,
-    input btn_start,
-    input [2:0] sw_mode,
+    input logic clk,
+    input logic reset,
+    input logic SR04_data,
+    input logic btn_start,
+    // input logic [2:0] sw_mode,
 
-    output start_trigger,
-    output [8:0]distance,
-    output measure_done,
-    output is_measure
+    output logic start_trigger,
+    output logic [8:0]distance
+    // output logic measure_done,
+    // output logic is_measure
    
     
 
     );
     localparam IDLE = 2'b00, SEND = 2'b01,START = 2'b10, MEASURE = 2'b11;
-    reg [1:0] current_state, next_state;
-    reg c_trigger, n_trigger; 
-    reg [8:0] c_distance,n_distance;  // 개수 몇개? 
-    reg [TICK_BIT_SIZE-1 : 0] c_tick_count, n_tick_count;
-    reg c_done, n_done;
-    reg n_echo;
-    wire measuring;
+    logic [1:0] current_state, next_state;
+    logic c_trigger, n_trigger; 
+    logic [8:0] c_distance,n_distance;  // 개수 몇개? 
+    logic [TICK_BIT_SIZE-1 : 0] c_tick_count, n_tick_count;
+    logic c_done, n_done;
+    logic n_echo;
+    logic measuring;
 
-    wire w_btn_start;
+    // logic w_btn_start;
 
-    assign w_btn_start = (btn_start) & (sw_mode == 3'b100); 
+    // assign w_btn_start = (btn_start) & (sw_mode == 3'b100); 
 
     // assign measuring = ((SR04_data == 1'b1)&&(n_echo == 1'b0)) ? 1'b1 : 1'b0;
           
 
-    assign is_measure = (current_state == MEASURE) ? 1'b1 : 1'b0;
-    wire us_tick;
+    // assign is_measure = (current_state == MEASURE) ? 1'b1 : 1'b0;
+    logic us_tick;
 
     assign start_trigger = c_trigger;
     assign distance = (c_distance <400) ? c_distance : 400;
@@ -102,7 +102,7 @@ module us_control
 
         case (current_state)
          IDLE: begin
-            if(w_btn_start) begin
+            if(btn_start) begin
                 next_state = SEND;
                 
             end
@@ -194,15 +194,15 @@ endmodule
     
 
 module us_tick_gen ( 
-    input clk,
-    input reset,
+    input logic clk,
+    input logic reset,
 
-    output tick
+    output logic tick
 
 );
     parameter COUNT = 100, BIT_SIZE = $clog2(COUNT);
-    reg c_tick, n_tick;
-    reg [BIT_SIZE-1:0] c_count, n_count;
+    logic c_tick, n_tick;
+    logic [BIT_SIZE-1:0] c_count, n_count;
 
     assign tick = c_tick;
 

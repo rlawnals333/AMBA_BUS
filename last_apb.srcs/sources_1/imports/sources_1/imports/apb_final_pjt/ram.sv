@@ -24,7 +24,7 @@ module ram(//이제 cpu 말고 bus랑 놀아야됨
     input logic PCLK,
     input logic PRESET,
 
-    input logic [11:0] PADDR, //12bit?  //4bit???  //알아서 자름 lsb 남김
+    input logic [11:0] PADDR, //12bit?  //4bit???  //알아서 자름 lsb 남김 // 12비트 이상부분은 ram 할당부분을 넘어섬 
     input logic [31:0] PWDATA,
     input logic PWRITE,
     input logic PENABLE,

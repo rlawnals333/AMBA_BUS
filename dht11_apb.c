@@ -135,26 +135,30 @@ void FND_control(FND_TypeDef *FNDx,GPIO_TypeDef* GPIOx, uint32_t en);
 int main()
 {
 
-    uint32_t time_B_toggle;
+    // uint32_t time_B_toggle;
     Switch_init(GPIOA);
     LED_init(GPIOB);
     
-    TIM_init_1us(TIM,100,10000000); // 1us/ 10초 카운트
+    TIM_init_1us(TIM,100,10000000); // 1us/ 10초 카운트 // 
     TIM_clear(TIM);
     TIM_start(TIM);
     uint32_t dht11_data;
-    uint32_t RH_int, RH_dec, T_int, T_dec; 
+    uint32_t RH_int; 
+    uint32_t T_int;
+    // uint32_t RH_dec; 
+    // uint32_t T_dec;
     uint32_t temp_RH_int;
     uint32_t temp_T_int;
     uint32_t sr04_data;
     uint32_t save_state;
+    
     
 
 
     // Switch_init(GPIOB);
 
     // timer 버튼 뗄뗴 동작작
-    time_B_toggle = 1;
+    // time_B_toggle = 1;
    
    // 컴파일러때매 어쩔수 없ㄷ음음
     // uint32_t *ascii_num[2] = {&tens,&ones};
@@ -177,15 +181,14 @@ int main()
             // delay_time(TIM,3000000);
              dht11_data = DHT11_operation(DHT,UART,TIM);
              sr04_data = SR04_operation(SR,UART,TIM);
-             RH_int = (dht11_data >> 24) & 0xFF;
-             T_int = (dht11_data >> 8) & 0xFF;
-             RH_dec = (dht11_data >> 16 ) & 0xFF ;
-             T_dec = dht11_data & 0xFF;
-            //  temp_RH_int = RH_int;
-            //  temp_T_int = T_int ;
+             RH_int = dht11_data >> 8;//안나오는 상황 
+             T_int = dht11_data & 0xFF;
+
+             temp_RH_int = RH_int;
+             temp_T_int = T_int ;
 
             
-            //  for(int i=0; i<100; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
+             for(int i=0; i<99; i++) { RH_int += temp_RH_int; T_int += temp_T_int;}
         
 
              LED_write(GPIOB,(1 << 5)+GPIOB -> ODR);
@@ -197,23 +200,23 @@ int main()
                 else {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,1);}} // 평소
 
             else if((char)save_state == 'H') { 
-                if(temp_RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));} //40 이상
+                if(RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));} //40 이상
                 else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));}
                                             }
 
              else if((char)save_state == 'T') { 
-                if(temp_T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));} // 30도 이상상
+                if(T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));} // 30도 이상상
                 else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));}
              }
              
              else if((char)save_state == 'S') {{FND_FONT(FND,0);FND_DOT(FND,0xf);LED_write(GPIOB,0); while(RX_READ(UART) != 'R'){} }}
              else { {FND_FONT(FND,10000);FND_DOT(FND,0);LED_write(GPIOB,7); }}
             
-             TIM_clear(TIM);
-             TIM_start(TIM);
+            //  TIM_clear(TIM);
+            //  TIM_start(TIM);
                
             
-            LED_write(GPIOB,(1 << 5)+GPIOB -> ODR);
+            // LED_write(GPIOB,(1 << 5)+GPIOB -> ODR);
 
         // if((Switch_read(GPIOA) & (1<<1) ) == (1<<1)) {delay_time(TIM,100);  time_B_toggle = TIM_readCounter(TIM); }  // 버튼 누를때 시간 카운트 / toggle값이 0이 안되게 딜레이 
         //     //이타이밍에 떼야됨 
@@ -425,7 +428,10 @@ uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx
     uint32_t dht_tens; // 주소값 4 바이트 
     uint32_t dht_ones;
     uint32_t *shift_num[4] = {&tw,&si,&ei,&ze}; 
-
+    uint32_t R_INT_1;
+    uint32_t R_INT_10;
+    uint32_t T_INT_1;
+    uint32_t T_INT_10;
     ze = 0;
     ei = 8;
     si = 16;
@@ -450,12 +456,19 @@ uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx
                     UART_send(UARTx,TIMx,(char)(dht_tens+'0'));
                     UART_send(UARTx,TIMx,(char)(dht_ones+'0'));
                     UART_send(UARTx,TIMx,'.');
+                    R_INT_1 = 0;
+                    R_INT_10 = 0;
+                    for(int i=0;i<10;i++) {
+                        R_INT_10 += dht_tens;
+                    }
+                    R_INT_1 = dht_ones;
                     break;
                 case 1:
                     UART_send(UARTx,TIMx,(char)dht_tens + '0');
                     UART_send(UARTx,TIMx,(char)dht_ones + '0');
                     UART_send(UARTx,TIMx,'%');
                     UART_send(UARTx,TIMx,' ');
+    
                     break;
                 
                 case 2:
@@ -464,6 +477,12 @@ uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx
                     UART_send(UARTx,TIMx,(char)(dht_tens+'0'));
                     UART_send(UARTx,TIMx,(char)(dht_ones+'0'));
                     UART_send(UARTx,TIMx,'.');
+                    T_INT_1 = 0;
+                    T_INT_10 = 0;
+                    for(int i=0;i<10;i++) {
+                        T_INT_10 += dht_tens;
+                    }
+                    T_INT_1 = dht_ones;
                     break;
                 
                 case 3:
@@ -471,12 +490,13 @@ uint32_t DHT11_operation(DHT_TypeDef*DHTx,UART_TypeDef * UARTx,TIM_TypeDef* TIMx
                     UART_send(UARTx,TIMx,(char)dht_ones + '0');
                     UART_send(UARTx,TIMx,'C');
                     UART_send(UARTx,TIMx,'\n');
+
                     break;
 
                 }
                
             }  
-            return dht_odata;
+            return ((R_INT_10+R_INT_1) << 8) + (T_INT_10+T_INT_1);
            
 }
 

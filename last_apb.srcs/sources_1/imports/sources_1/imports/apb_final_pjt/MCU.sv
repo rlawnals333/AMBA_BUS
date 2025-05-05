@@ -9,7 +9,10 @@ module MCU (
     output logic [3:0] fndcomm,
     output logic [7:0] fndfont, // 밖으로 나가는 port 
     output logic tx_out,
-    input logic rx_in
+    input logic rx_in,
+
+    input logic echo,
+    output logic start_trigger
     // output logic [3:0] fsm_state,
     // output logic tx_done,
     // output logic rx_done,
@@ -167,7 +170,9 @@ ABP_interface_GPIO u_GPIOA_INTF (
     // .outPort(GPIO_OUTPORT)
 );
 
-ABP_interface_GPIO u_GPIOB_INTF (
+
+
+ APB_interface_SR04 u_sr04(
     .PCLK(clk),
     .PRESET(reset),
 
@@ -175,18 +180,21 @@ ABP_interface_GPIO u_GPIOB_INTF (
     .PWDATA(PWDATA),
     .PWRITE(PWRITE),
     .PENABLE(PENABLE),
-    .PSEL(PSEL2),
+    .PSEL(PSEL2), // 0x10001000번지 부터 
 
     .PRDATA(PRDATA2),
     .PREADY(PREADY2),
 
-    .inoutPort(GPIOB_INOUTPORT)
-    // .outPort(GPIO_OUTPORT)
-);
-
-APB_interface_fifo_uart_rx u_uart_fifo_rx(
+    .echo(echo),
+    .start_trigger(start_trigger)
+  
+ 
+    
+    );
+ABP_interface_GPIO u_GPIOB_INTF (
     .PCLK(clk),
     .PRESET(reset),
+
     .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
     .PWDATA(PWDATA),
     .PWRITE(PWRITE),
@@ -196,10 +204,25 @@ APB_interface_fifo_uart_rx u_uart_fifo_rx(
     .PRDATA(PRDATA3),
     .PREADY(PREADY3),
 
-    .rx_in(rx_in)
+    .inoutPort(GPIOB_INOUTPORT)
+    // .outPort(GPIO_OUTPORT)
+);
+// APB_interface_fifo_uart_rx u_uart_fifo_rx(
+//     .PCLK(clk),
+//     .PRESET(reset),
+//     .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
+//     .PWDATA(PWDATA),
+//     .PWRITE(PWRITE),
+//     .PENABLE(PENABLE),
+//     .PSEL(PSEL3),
+
+//     .PRDATA(PRDATA3),
+//     .PREADY(PREADY3),
+
+//     .rx_in(rx_in)
   
     
-    );
+//     );
 
  APB_interface_dht11 u_dht11(
     .PCLK(clk),
@@ -238,7 +261,7 @@ APB_interface_fifo_uart_rx u_uart_fifo_rx(
 );
 
 
-APB_interface_fifo_uart_tx u_uart_fifo_tx(
+APB_interface_fifo_uart u_uart_fifo(
     .PCLK(clk),
     .PRESET(reset),
     .PADDR(PADDR),  //4bit???  //알아서 자름 lsb 남김
@@ -250,7 +273,8 @@ APB_interface_fifo_uart_tx u_uart_fifo_tx(
     .PRDATA(PRDATA6),
     .PREADY(PREADY6),
 
-    .tx_out(tx_out)
+    .tx_out(tx_out),
+    .rx_in(rx_in)
  
     
     );
