@@ -196,16 +196,16 @@ int main()
              save_state = RX_READ(UART);
              if((char)save_state == 'D') { 
                 if(sr04_data >= 400) {LED_write(GPIOB,1); FND_FONT(FND,20000);FND_DOT(FND,0);} // 400이상상
-                else if(sr04_data < 10) {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,(1 << 4) + 1);} // 10이하 경보보
+                else if(sr04_data < 10) {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,(1 << 7));} // 10이하 경보보
                 else {FND_FONT(FND,sr04_data);FND_DOT(FND,0);LED_write(GPIOB,1);}} // 평소
 
             else if((char)save_state == 'H') { 
-                if(RH_int > 40) {LED_write(GPIOB,(1 << 4)+(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));} //40 이상
+                if(RH_int > 4000) {LED_write(GPIOB,(1 << 7)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));} //40 이상
                 else {LED_write(GPIOB,(1<<1)); FND_FONT(FND,RH_int); FND_DOT(FND,(1<<2));}
                                             }
 
              else if((char)save_state == 'T') { 
-                if(T_int > 30) {LED_write(GPIOB,(1<<2) + (1 <<4)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));} // 30도 이상상
+                if(T_int > 3000) {LED_write(GPIOB,(1 << 7)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));} // 30도 이상상
                 else {LED_write(GPIOB,(1<<2)); FND_FONT(FND,T_int);FND_DOT(FND,(1<<2));}
              }
              
